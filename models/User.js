@@ -1,12 +1,11 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
-const productsSchema = new mongoose.Schema(
-  {
-    name: { type: String, required: true },
-    email: { type: String, required: true, unique: true },
-    password: { type: String, required: true },
+const UserSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: true,
+    required: [true, "Please provide a name for this pet."],
+    maxlength: [60, "Name cannot be more than 60 characters"],
   },
-  { timestamps: true }
-);
-
-export default mongoose.model("Order", productsSchema);
+});
+export default mongoose.models.User || mongoose.model("User", UserSchema);
