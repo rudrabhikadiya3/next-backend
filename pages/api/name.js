@@ -10,13 +10,13 @@ export default async function handler(req, res) {
     } catch (error) {
       res.status(400).json({ success: false });
     }
+  } else if (req.method === "DELETE") {
   } else {
     try {
       const user = await User.find({});
       res.status(200).json(user);
     } catch (error) {
-      es.status(400).json({ success: false });
+      res.status(400).json({ success: false });
     }
   }
-  console.log("name", req.body);
 }

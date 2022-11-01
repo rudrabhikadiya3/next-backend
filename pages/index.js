@@ -11,21 +11,31 @@ export default function Home({ names }) {
     });
     inputRef.current.value = "";
   };
-  console.log(names);
+  const handleDelete = (id) => {
+    console.log(id);
+  };
   return (
     <Layout>
       <>
-        <input
-          type="text"
-          onChange={(e) => setData(e.target.value)}
-          placeholder="name"
-          ref={inputRef}
-        />
-        <button onClick={handleSubmit}>submit</button>
-        {names.map((n, i) => {
+        <div className="col-5 mx-auto text-center my-5">
+          <input
+            type="text"
+            onChange={(e) => setData(e.target.value)}
+            placeholder="name"
+            ref={inputRef}
+          />
+          <button onClick={handleSubmit}>Add</button>
+        </div>
+        {names.map((d, i) => {
           return (
             <ul className="list-group" key={i}>
-              <li className="list-group-item">{n.name}</li>
+              <li className="list-group-item">
+                {d.name}
+                <div className="d-inline-block ms-5 border">
+                  <button onClick={() => handleDelete(d._id)}>D</button>
+                  <button>E</button>
+                </div>
+              </li>
             </ul>
           );
         })}
@@ -34,7 +44,7 @@ export default function Home({ names }) {
   );
 }
 export const getServerSideProps = async () => {
-  const res = await fetch("http://localhost:3000/api/hello");
+  const res = await fetch("http://localhost:3000/api/name");
   const names = await res.json();
   return {
     props: { names },
