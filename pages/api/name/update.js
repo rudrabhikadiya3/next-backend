@@ -4,7 +4,7 @@ import dbConnect from "../../../middleware/DBconnect";
 export default async function handler(req, res) {
   dbConnect();
   const data = JSON.parse(req.body);
-  console.log("req", data);
+  console.log("body", data);
   console.log("id", data.id);
   try {
     const user = await User.updateOne(

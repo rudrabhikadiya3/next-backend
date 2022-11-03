@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState } from "react";
-import Layout from "../components/Layout";
+
 import "bootstrap-icons/font/bootstrap-icons.css";
 import { BASE_URL } from "../URLs";
+import Link from "next/link";
 
 export default function Home() {
   const inputRef = useRef();
-  const [formData, setFormData] = useState("");
   const [update, setUpdate] = useState(false);
   const [newData, setNewData] = useState({});
   const [allData, setAllData] = useState([]);
@@ -26,16 +26,16 @@ export default function Home() {
   };
 
   const handleSubmit = () => {
+    console.log(inputRef.current.value);
     if (!update) {
       fetch(BASE_URL + "insert", {
         method: "POST",
-
-        body: formData,
+        body: inputRef.current.value,
       });
     } else {
       fetch(BASE_URL + "update", {
         method: "PUT",
-        body: JSON.stringify({ ...newData, name: formData }),
+        body: JSON.stringify({ ...newData, name: inputRef.current.value }),
       });
     }
     inputRef.current.value = "";
@@ -48,37 +48,32 @@ export default function Home() {
     });
   };
   return (
-    <Layout>
-      <>
-        <div className="col-5 mx-auto text-center my-5">
-          <input
-            type="text"
-            onChange={(e) => setFormData(e.target.value)}
-            placeholder="name"
-            ref={inputRef}
-          />
-          {update ? (
-            <button onClick={handleSubmit}>Change</button>
-          ) : (
-            <button onClick={handleSubmit}>Add</button>
-          )}
-        </div>
-        <ul className="list-group">
-          {allData.map((d, i) => (
-            <li className="list-group-item" key={i}>
-              {d.name}
-              <div className="d-inline-block ms-5 border">
-                <button onClick={() => handleDelete(d._id)}>
+    <>
+      <div className="col-5 mx-auto text-center my-5">
+        <input type="text" placeholder="name" ref={inputRef} />
+        {update ? (
+          <button onClick={handleSubmit}>Change</button>
+        ) : (
+          <button onClick={handleSubmit}>Add</button>
+        )}
+      </div>
+      <ul className="list-group">
+        {allData.map((d, i) => (
+          <li className="list-group-item" key={i}>
+            {d.name}
+            <div className="d-inline-block ms-5 border">
+              <button onClick={() => handleDelete(d._id)}>
+                <Link href={"/"}>
                   <i className="bi bi-trash3-fill"></i>
-                </button>
-                <button onClick={() => handleShow({ id: d._id, name: d.name })}>
-                  <i className="bi bi-pencil-fill"></i>
-                </button>
-              </div>
-            </li>
-          ))}
-        </ul>
-      </>
-    </Layout>
+                </Link>
+              </button>
+              <button onClick={() => handleShow({ id: d._id, name: d.name })}>
+                <i className="bi bi-pencil-fill"></i>
+              </button>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </>
   );
 }
