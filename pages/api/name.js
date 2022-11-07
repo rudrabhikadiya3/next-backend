@@ -1,10 +1,10 @@
-import User from "../../models/User";
-import dbConnect from "../../middleware/DBconnect";
+import dbConnect from "../../helper/DBconnect";
+import Name from "../../models/Name";
 
 export default async function handler(req, res) {
   dbConnect();
   try {
-    const user = await User.find({});
+    const user = await Name.find({});
     res.status(200).json(user);
   } catch (error) {
     res.status(400).json({ success: false });

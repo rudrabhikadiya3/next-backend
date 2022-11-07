@@ -1,5 +1,5 @@
 import Products from "../../../models/Products";
-import dbConnect from "../../../middleware/DBconnect";
+import dbConnect from "../../../helper/DBconnect";
 const path = require("path");
 import nextConnect from "next-connect";
 import multer from "multer";

@@ -1,5 +1,5 @@
 import Product from "../../models/Products";
-import dbConnect from "../../middleware/DBconnect";
+import dbConnect from "../../helper/DBconnect";
 
 export default async function handler(req, res) {
   dbConnect();
