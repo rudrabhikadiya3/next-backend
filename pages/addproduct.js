@@ -12,24 +12,33 @@ import {
   TextField,
 } from "@mui/material";
 import { useState } from "react";
+import { NEW_PRODUCT_API } from "../URLs";
 const addproduct = () => {
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState({
-    pname: "",
+    title: "",
     bname: "",
     catagory: "",
     mrp: "",
     price: "",
     qty: "",
     keywords: "",
+    img: "",
   });
   const [errors, seterror] = useState({});
-
+  const [productFile, setProductFile] = useState({});
   const catagories = ["fashion", "electronics", "mobile", "toys", "appliances"];
 
+  const flieHandler = (file) => {
+    setProductFile(file);
+  };
+
   const handleSubmit = () => {
-    if (value.pname === "") {
-      seterror({ pnameErr: "please enter product title" });
+    let fdata = new FormData();
+    fdata.append("file", productFile);
+    fdata.append("data", JSON.stringify(value));
+    if (value.title === "") {
+      seterror({ titleErr: "please enter product title" });
     } else if (value.bname === "") {
       seterror({ bnameErr: "enter brand name" });
     } else if (value.catagory === "") {
@@ -43,7 +52,26 @@ const addproduct = () => {
     } else if (value.keywords === "") {
       seterror({ keywordsErr: "please enter keywords" });
     }
-    setOpen(false);
+
+    if (
+      value.title !== "" &&
+      value.bname !== "" &&
+      value.catagory !== "" &&
+      value.mrp !== "" &&
+      value.price !== "" &&
+      value.qty !== "" &&
+      value.keywords !== ""
+    ) {
+      seterror("");
+      fetch(NEW_PRODUCT_API, {
+        method: "POST",
+        body: fdata,
+        headers: {
+          Accept: "multipart/form-data",
+        },
+      });
+      setOpen(false);
+    }
   };
   return (
     <>
@@ -64,13 +92,13 @@ const addproduct = () => {
 
           <TextField
             margin="dense"
-            label="Product Name"
+            label="Title"
             type="text"
             fullWidth
             variant="standard"
-            onChange={(e) => setValue({ ...value, pname: e.target.value })}
+            onChange={(e) => setValue({ ...value, title: e.target.value })}
           />
-          <span className="form-error">{errors.pnameErr}</span>
+          <span className="form-error">{errors.titleErr}</span>
 
           <TextField
             margin="dense"
@@ -84,7 +112,6 @@ const addproduct = () => {
           <FormControl variant="standard" fullWidth margin="dense">
             <InputLabel>Catagory</InputLabel>
             <Select
-              value=""
               label="Catagory"
               fullWidth
               onChange={(e) => setValue({ ...value, catagory: e.target.value })}
@@ -95,8 +122,8 @@ const addproduct = () => {
                 </MenuItem>
               ))}
             </Select>
-            <span className="form-error">{errors.catagoriesErr}</span>
           </FormControl>
+          <span className="form-error">{errors.catagoryErr}</span>
           <TextField
             margin="dense"
             label="MRP"
@@ -132,7 +159,16 @@ const addproduct = () => {
             variant="standard"
             onChange={(e) => setValue({ ...value, keywords: e.target.value })}
           />
-          <span className="form-error">{errors.kwordsErr}</span>
+          <span className="form-error">{errors.keywordsErr}</span>
+          <TextField
+            margin="dense"
+            label="product image"
+            type="file"
+            fullWidth
+            variant="standard"
+            onChange={(e) => flieHandler(e.target.files[0])}
+          />
+          <span className="form-error">{errors.imgErr}</span>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpen(false)}>Cancel</Button>
