@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 
 import "bootstrap-icons/font/bootstrap-icons.css";
-import { BASE_URL } from "../URLs";
+import { NAME_API } from "../URLs";
 import Link from "next/link";
 
 export default function Home() {
@@ -11,7 +11,7 @@ export default function Home() {
   const [allData, setAllData] = useState([]);
 
   const displayData = async () => {
-    const res = await fetch(BASE_URL);
+    const res = await fetch(NAME_API);
     const names = await res.json();
     setAllData(names);
   };
@@ -28,12 +28,12 @@ export default function Home() {
   const handleSubmit = () => {
     console.log(inputRef.current.value);
     if (!update) {
-      fetch(BASE_URL + "insert", {
+      fetch(NAME_API + "insert", {
         method: "POST",
         body: inputRef.current.value,
       });
     } else {
-      fetch(BASE_URL + "update", {
+      fetch(NAME_API + "update", {
         method: "PUT",
         body: JSON.stringify({ ...newData, name: inputRef.current.value }),
       });
@@ -42,7 +42,7 @@ export default function Home() {
   };
   const handleDelete = (id) => {
     window.location.reload();
-    fetch(BASE_URL + "delete", {
+    fetch(NAME_API + "delete", {
       method: "POST",
       body: id,
     });
