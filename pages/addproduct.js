@@ -37,10 +37,6 @@ const addproduct = () => {
     let fdata = new FormData();
     fdata.append("file", productFile);
     fdata.append("data", JSON.stringify(value));
-<<<<<<< HEAD
-=======
-    console.log("fdata");
->>>>>>> 238c10d02ae2dfa8514f929a0b6b7f0cbf7b42ee
     if (value.title === "") {
       seterror({ titleErr: "please enter product title" });
     } else if (value.bname === "") {
@@ -77,7 +73,6 @@ const addproduct = () => {
       setOpen(false);
     }
   };
-  console.log(errors);
   return (
     <>
       <Button

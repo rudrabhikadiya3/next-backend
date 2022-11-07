@@ -42,18 +42,10 @@ apiRoute.post(async (req, res) => {
       keywords: data.keywords,
       img: fileName,
     });
-<<<<<<< HEAD
     res.status(200).json(newProduct); // response
   } catch (error) {
     res.status(400).json({ success: false });
   }
-=======
-    res.status(200).json(newProduct);
-  } catch (error) {
-    res.status(400).json({ success: false });
-  }
-  // res.status(200).json({ data: `./public/assets/images/${fname}` }); // response
->>>>>>> 238c10d02ae2dfa8514f929a0b6b7f0cbf7b42ee
 });
 
 export default apiRoute;
