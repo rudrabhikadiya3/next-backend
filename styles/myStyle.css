@@ -16,3 +16,6 @@ input::-webkit-inner-spin-button {
 .row > * {
   width: unset !important;
 }
+a {
+  cursor: pointer;
+}

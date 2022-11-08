@@ -22,6 +22,11 @@ export default function Header() {
                 product+
               </Link>
             </li>
+            <li className="nav-item">
+              <Link href="/signup" className="nav-link">
+                signup
+              </Link>
+            </li>
           </ul>
         </div>
       </nav>
