@@ -1,4 +1,6 @@
-import React, { useState } from "react";
+import { useState } from "react";
+import { useRouter } from "next/router";
+import { regex } from "../helper/common";
 
 const signup = () => {
   const [form, setForm] = useState("login");
@@ -12,12 +14,51 @@ const signup = () => {
     password: "",
   });
   const [canLogin, setCanLogin] = useState(false);
+  const [errors, seterror] = useState({});
 
-  const handleSignIn = () => {
-    console.log(userData);
+  const router = useRouter();
+
+  const handleSignIn = async () => {
+    if (!userData.name) {
+      seterror({ nameErr: "please enter your name" });
+    } else if (!userData.email) {
+      seterror({ emailErr: "enter email" });
+    } else if (!userData.email.match(regex.mail)) {
+      seterror({ emailErr: "enter valid email" });
+    } else if (!userData.password) {
+      seterror({ passwordErr: "please enter password" });
+    }
+    if (
+      userData.name &&
+      userData.email &&
+      userData.email.match(regex.mail) &&
+      userData.password
+    ) {
+      seterror("");
+      const res = await fetch("http://localhost:3000/api/users", {
+        method: "POST",
+        body: JSON.stringify(userData),
+      });
+      const signinApi = await res.json();
+      console.log("SIGNIN API RESPONSE", signinApi);
+      setForm("login");
+    }
   };
-  const handleLogin = () => {
-    console.log("handleLogin");
+
+  const handleLogin = async () => {
+    const res = await fetch("http://localhost:3000/api/login", {
+      method: "POST",
+      body: JSON.stringify(loginData),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    const loginApi = await res.json();
+    console.log("LOGIN API RESPONSE", loginApi);
+    if (data.success) {
+      router.push("/");
+    }
   };
 
   return (
@@ -33,9 +74,10 @@ const signup = () => {
               <input
                 type="email"
                 className="form-control border border-primary"
-                onChange={(e) =>
+                onChange={e =>
                   setLoginData({ ...loginData, email: e.target.value })
                 }
+                value={loginData.email}
               />
             </div>
             <div className="mb-3">
@@ -43,9 +85,10 @@ const signup = () => {
               <input
                 type="password"
                 className="form-control border border-primary"
-                onChange={(e) =>
+                onChange={e =>
                   setLoginData({ ...loginData, password: e.target.value })
                 }
+                value={loginData.password}
               />
             </div>
           </>
@@ -56,30 +99,36 @@ const signup = () => {
               <input
                 type="text"
                 className="form-control border border-primary"
-                onChange={(e) =>
+                onChange={e =>
                   setUserData({ ...userData, name: e.target.value })
                 }
+                value={userData.name}
               />
+              <span className="form-error">{errors.nameErr}</span>
             </div>
             <div className="mb-3">
               <label className="form-label">Email address</label>
               <input
                 type="email"
                 className="form-control border border-primary"
-                onChange={(e) =>
+                onChange={e =>
                   setUserData({ ...userData, email: e.target.value })
                 }
+                value={userData.email}
               />
+              <span className="form-error">{errors.emailErr}</span>
             </div>
             <div className="mb-3">
               <label className="form-label">Password</label>
               <input
                 type="password"
                 className="form-control border border-primary"
-                onChange={(e) =>
+                onChange={e =>
                   setUserData({ ...userData, password: e.target.value })
                 }
+                value={userData.password}
               />
+              <span className="form-error">{errors.passwordErr}</span>
             </div>
           </>
         )}
@@ -90,7 +139,7 @@ const signup = () => {
             <>
               <input
                 type="checkbox"
-                onChange={(e) => setCanLogin(e.target.checked)}
+                onChange={e => setCanLogin(e.target.checked)}
               />
               <label>Terms & Conditions</label>
             </>
