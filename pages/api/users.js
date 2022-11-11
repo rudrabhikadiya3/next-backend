@@ -9,29 +9,33 @@ export default async function handler(req, res) {
     try {
       const userData = await JSON.parse(req.body);
       console.log("new user", userData);
+      const crrUser = await Users.findOne({ email: userData.email });
+      console.log("isUserExist", crrUser);
 
-      const emailExist = await Users.findOne({ email: userData.email });
-      if (!emailExist) {
+      if (!crrUser) {
         const user = await Users.create({
           name: userData.name,
           email: userData.email,
           password: enc(userData.password, secretkeys.password),
+          otp: Math.floor(Math.random() * 100000),
+          otpGenerateTime: Date.now(),
+          isEmailVerfied: false,
         });
         res.status(201).json({
           success: true,
-          data: user,
-          message: "You are registerd successfully",
+          newUser: user,
+          message: `OTP has been sent in you mail`,
         });
       } else {
         res.status(400).json({
           success: false,
-          message: "This email is already exist",
+          message: `This email is already exist`,
         });
       }
     } catch (error) {
       res.status(400).json({
         success: false,
-        message: "Something went wrong",
+        message: `Something went wrong`,
       });
     }
   } else {
@@ -41,7 +45,7 @@ export default async function handler(req, res) {
     } catch (error) {
       res.status(400).json({
         success: false,
-        message: "Something went wrong",
+        message: `Something went wrong`,
       });
     }
   }

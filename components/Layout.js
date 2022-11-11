@@ -8,11 +8,7 @@ export default function Layout({ children }) {
   return (
     <>
       <Header />
-      <main>
-        <div className="container">
-          <div className="row">{children}</div>
-        </div>
-      </main>
+      <main>{children}</main>
       <Footer />
     </>
   );

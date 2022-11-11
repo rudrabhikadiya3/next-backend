@@ -14,9 +14,21 @@ export default async function handler(req, res) {
         if (
           credentials.password === dec(isUser.password, secretkeys.password)
         ) {
-          return res
-            .status(201)
-            .json({ success: true, message: `Login succesfully` });
+          if (isUser.isEmailVerfied) {
+            return res.status(201).json({
+              success: true,
+              isEmailVerfied: true,
+              user: isUser,
+              message: `Login succesfully`,
+            });
+          } else {
+            return res.status(201).json({
+              success: false,
+              isEmailVerfied: false,
+              message: `Please verify your email`,
+              user: isUser,
+            });
+          }
         } else {
           return res
             .status(400)

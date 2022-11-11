@@ -8,6 +8,9 @@ module.exports =
         name: { type: String },
         email: { type: String },
         password: { type: String },
+        otp: { type: Number },
+        otpGenerateTime: { type: Number },
+        isEmailVerfied: { type: Boolean },
       },
       { versionKey: false }
     )

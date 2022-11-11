@@ -14,8 +14,16 @@ input::-webkit-inner-spin-button {
   margin: 0;
 }
 .row > * {
-  width: unset !important;
+  width: 32% !important;
 }
 a {
   cursor: pointer;
+}
+.button-radius {
+  border-top-left-radius: 0px !important;
+  border-bottom-left-radius: 0px !important;
+}
+.input-radius {
+  border-top-right-radius: 0px !important;
+  border-bottom-right-radius: 0px !important;
 }

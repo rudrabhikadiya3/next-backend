@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { useRouter } from "next/router";
-import { regex } from "../helper/common";
+import Router, { useRouter } from "next/router";
+import { enc, regex, secretkeys } from "../helper/common";
 
 const signup = () => {
   const [form, setForm] = useState("login");
@@ -39,9 +39,12 @@ const signup = () => {
         method: "POST",
         body: JSON.stringify(userData),
       });
-      const signinApi = await res.json();
+      var signinApi = await res.json();
       console.log("SIGNIN API RESPONSE", signinApi);
-      setForm("login");
+      if (signinApi.success) {
+        router.push("/enter_otp");
+        localStorage.setItem("id", enc(signinApi.newUser._id, secretkeys.id));
+      }
     }
   };
 
@@ -53,16 +56,35 @@ const signup = () => {
         "Content-Type": "application/json",
       },
     });
-
     const loginApi = await res.json();
+
     console.log("LOGIN API RESPONSE", loginApi);
-    if (data.success) {
-      router.push("/");
+
+    if (loginApi.success) {
+      router.push({ pathname: "/" });
+    }
+
+    if (
+      form === "login" &&
+      !loginApi.isEmailVerfied &&
+      loginApi.message === "Please verify your email"
+    ) {
+      const res = await fetch("http://localhost:3000/api/users/regenerateotp", {
+        method: "PUT",
+        body: JSON.stringify(loginApi.user._id),
+      });
+      const reOtpApi = await res.json();
+      Router.push({
+        pathname: "/enter_otp",
+        query: "reverify",
+      });
+      localStorage.setItem("id", enc(loginApi.user._id, secretkeys.id));
+      console.log("reOtpApi==>", reOtpApi);
     }
   };
 
   return (
-    <div className="vh-100 d-flex align-items-center mx-auto">
+    <div className="vh-100 d-flex align-items-center justify-content-center">
       <div className="p-5 shadow-sm border rounded-5 border-primary bg-white">
         <h2 className="text-center mb-4 text-primary">
           {form === "login" ? "Login Form" : "Signup Form"}
@@ -74,7 +96,7 @@ const signup = () => {
               <input
                 type="email"
                 className="form-control border border-primary"
-                onChange={e =>
+                onChange={(e) =>
                   setLoginData({ ...loginData, email: e.target.value })
                 }
                 value={loginData.email}
@@ -85,7 +107,7 @@ const signup = () => {
               <input
                 type="password"
                 className="form-control border border-primary"
-                onChange={e =>
+                onChange={(e) =>
                   setLoginData({ ...loginData, password: e.target.value })
                 }
                 value={loginData.password}
@@ -99,7 +121,7 @@ const signup = () => {
               <input
                 type="text"
                 className="form-control border border-primary"
-                onChange={e =>
+                onChange={(e) =>
                   setUserData({ ...userData, name: e.target.value })
                 }
                 value={userData.name}
@@ -111,7 +133,7 @@ const signup = () => {
               <input
                 type="email"
                 className="form-control border border-primary"
-                onChange={e =>
+                onChange={(e) =>
                   setUserData({ ...userData, email: e.target.value })
                 }
                 value={userData.email}
@@ -123,7 +145,7 @@ const signup = () => {
               <input
                 type="password"
                 className="form-control border border-primary"
-                onChange={e =>
+                onChange={(e) =>
                   setUserData({ ...userData, password: e.target.value })
                 }
                 value={userData.password}
@@ -139,7 +161,7 @@ const signup = () => {
             <>
               <input
                 type="checkbox"
-                onChange={e => setCanLogin(e.target.checked)}
+                onChange={(e) => setCanLogin(e.target.checked)}
               />
               <label>Terms & Conditions</label>
             </>
@@ -167,15 +189,17 @@ const signup = () => {
         </div>
         <div className="mt-3">
           {form === "login" ? (
-            <p className="mb-0  text-center">
-              Don't have an account?
-              <a
-                className="text-primary fw-bold"
-                onClick={() => setForm("signup")}
-              >
-                Sign Up
-              </a>
-            </p>
+            <>
+              <p className="mb-0  text-center">
+                Don't have an account?
+                <a
+                  className="text-primary fw-bold"
+                  onClick={() => setForm("signup")}
+                >
+                  Sign Up
+                </a>
+              </p>
+            </>
           ) : (
             <p className="mb-0  text-center">
               Already user?
