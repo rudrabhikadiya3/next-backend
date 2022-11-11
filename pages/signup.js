@@ -1,7 +1,8 @@
 import { useState } from "react";
 import Router, { useRouter } from "next/router";
 import { enc, regex, secretkeys } from "../helper/common";
-
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 const signup = () => {
   const [form, setForm] = useState("login");
   const [userData, setUserData] = useState({
@@ -41,9 +42,15 @@ const signup = () => {
       });
       var signinApi = await res.json();
       console.log("SIGNIN API RESPONSE", signinApi);
+
       if (signinApi.success) {
-        router.push("/enter_otp");
+        setTimeout(() => {
+          router.push("/enter_otp");
+        }, 2000);
         localStorage.setItem("id", enc(signinApi.newUser._id, secretkeys.id));
+        toast.success(signinApi.message);
+      } else {
+        toast.error(signinApi.message);
       }
     }
   };
@@ -61,7 +68,12 @@ const signup = () => {
     console.log("LOGIN API RESPONSE", loginApi);
 
     if (loginApi.success) {
-      router.push({ pathname: "/" });
+      setTimeout(() => {
+        router.push({ pathname: "/" });
+      }, 2000);
+      toast.success(loginApi.message);
+    } else {
+      toast.error(loginApi.message);
     }
 
     if (
@@ -74,17 +86,21 @@ const signup = () => {
         body: JSON.stringify(loginApi.user._id),
       });
       const reOtpApi = await res.json();
-      Router.push({
-        pathname: "/enter_otp",
-        query: "reverify",
-      });
+      setTimeout(() => {
+        Router.push({
+          pathname: "/enter_otp",
+          query: "reverify",
+        });
+      }, 2000);
       localStorage.setItem("id", enc(loginApi.user._id, secretkeys.id));
       console.log("reOtpApi==>", reOtpApi);
+      toast.success(reOtpApi.message);
     }
   };
 
   return (
     <div className="vh-100 d-flex align-items-center justify-content-center">
+      <ToastContainer />
       <div className="p-5 shadow-sm border rounded-5 border-primary bg-white">
         <h2 className="text-center mb-4 text-primary">
           {form === "login" ? "Login Form" : "Signup Form"}

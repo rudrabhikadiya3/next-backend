@@ -1,6 +1,8 @@
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { dec, secretkeys } from "../helper/common";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const EnterOtp = () => {
   const [otp, setOtp] = useState("");
@@ -21,7 +23,12 @@ const EnterOtp = () => {
       const signinApi = await res.json();
       console.log(signinApi);
       if (signinApi.success) {
-        router.push("/signup");
+        setTimeout(() => {
+          router.push("/");
+        }, 2000);
+        toast.success(signinApi.message);
+      } else {
+        toast.error(signinApi.message);
       }
     } else {
       setErrors({ otpErr: "please enter otp" });
@@ -37,6 +44,11 @@ const EnterOtp = () => {
       });
       const reOtpApi = await res.json();
       console.log("reOtpApi ==>", reOtpApi);
+      if (reOtpApi.success) {
+        toast.success(reOtpApi.message);
+      } else {
+        toast.error(reOtpApi.message);
+      }
       setCounter(20);
     }
   };
@@ -49,6 +61,7 @@ const EnterOtp = () => {
 
   return (
     <>
+      <ToastContainer />
       <div className="container">
         <div className="row justify-content-center ">
           <div className="d-flex">
