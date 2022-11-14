@@ -3,6 +3,8 @@ import Router, { useRouter } from "next/router";
 import { enc, regex, secretkeys } from "../helper/common";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { setCookie } from "cookies-next";
+
 const signup = () => {
   const [form, setForm] = useState("login");
   const [userData, setUserData] = useState({
@@ -67,11 +69,12 @@ const signup = () => {
 
     console.log("LOGIN API RESPONSE", loginApi);
 
-    if (loginApi.success) {
+    if (loginApi.success && loginApi.user.isEmailVerfied) {
       setTimeout(() => {
         router.push({ pathname: "/" });
       }, 2000);
       toast.success(loginApi.message);
+      setCookie("uid", loginApi.user._id);
     } else {
       toast.error(loginApi.message);
     }

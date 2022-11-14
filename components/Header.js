@@ -1,6 +1,11 @@
 import Link from "next/link";
+import { deleteCookie } from "cookies-next";
+import { hasCookie } from "cookies-next";
 
 export default function Header() {
+  const handleLogout = () => {
+    deleteCookie("uid");
+  };
   return (
     <>
       <nav className="navbar navbar-expand-lg navbar-light bg-light">
@@ -22,11 +27,24 @@ export default function Header() {
                 product+
               </Link>
             </li>
-            <li className="nav-item">
-              <Link href="/signup" className="nav-link">
-                signup
-              </Link>
-            </li>
+
+            {hasCookie("uid") ? (
+              <li className="nav-item">
+                <Link
+                  href="/signup"
+                  className="nav-link"
+                  onClick={handleLogout}
+                >
+                  Logout
+                </Link>
+              </li>
+            ) : (
+              <li className="nav-item">
+                <Link href="/signup" className="nav-link">
+                  signup
+                </Link>
+              </li>
+            )}
           </ul>
         </div>
       </nav>

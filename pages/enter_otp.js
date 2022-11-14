@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { dec, secretkeys } from "../helper/common";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { setCookie } from "cookies-next";
 
 const EnterOtp = () => {
   const [otp, setOtp] = useState("");
@@ -20,15 +21,16 @@ const EnterOtp = () => {
           body: JSON.stringify({ otp, id: dec(id, secretkeys.id) }),
         }
       );
-      const signinApi = await res.json();
-      console.log(signinApi);
-      if (signinApi.success) {
+      const otpVerifyAPI = await res.json();
+      console.log(otpVerifyAPI);
+      if (otpVerifyAPI.success && otpVerifyAPI.user.isEmailVerfied) {
         setTimeout(() => {
           router.push("/");
         }, 2000);
-        toast.success(signinApi.message);
+        toast.success(otpVerifyAPI.message);
+        setCookie("uid", otpVerifyAPI.user._id);
       } else {
-        toast.error(signinApi.message);
+        toast.error(otpVerifyAPI.message);
       }
     } else {
       setErrors({ otpErr: "please enter otp" });
