@@ -5,7 +5,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { setCookie } from "cookies-next";
 
-const signup = () => {
+const signup = ({ warning }) => {
   const [form, setForm] = useState("login");
   const [userData, setUserData] = useState({
     name: "",
@@ -74,6 +74,7 @@ const signup = () => {
         router.push({ pathname: "/" });
       }, 2000);
       toast.success(loginApi.message);
+      // setCookie("uid", loginApi.user._id);
       setCookie("uid", loginApi.user._id);
     } else {
       toast.error(loginApi.message);
@@ -110,6 +111,7 @@ const signup = () => {
         </h2>
         {form === "login" ? (
           <>
+            <span className="form-error text-warning">{warning}</span>
             <div className="mb-3">
               <label className="form-label">Email address</label>
               <input

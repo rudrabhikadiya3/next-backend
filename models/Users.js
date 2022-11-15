@@ -11,6 +11,9 @@ module.exports =
         otp: { type: Number },
         otpGenerateTime: { type: Number },
         isEmailVerfied: { type: Boolean },
+        is2FAEnabel: { type: Boolean },
+        QRcode: { type: String },
+        base32: { type: String },
       },
       { versionKey: false }
     )

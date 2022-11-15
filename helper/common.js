@@ -19,6 +19,7 @@ export function enc(textToEncrypt, secret) {
 export const secretkeys = {
   password: "qwertyuiopasdfghjklzxcvbnm123456",
   id: "llllaxsdcfgvbhnjmkuuesirwsradsad",
+  json: "asdasdadsasdasdcxzswerfgtyhjnmkl",
 };
 
 export const regex = {

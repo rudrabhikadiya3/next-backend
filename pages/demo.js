@@ -1,31 +1,21 @@
-import React, { useState } from "react";
-import { NEW_PRODUCT_API } from "../URLs";
-
+var QRCode = require("qrcode");
 const demo = () => {
-  const [userFile, setUserFile] = useState("");
-
-  const handleChange = (file) => {
-    setUserFile(file);
-  };
-
-  const handleSubmit = () => {
-    let fdata = new FormData();
-    fdata.append("img", userFile);
-    console.log(fdata);
-
-    fetch(NEW_PRODUCT_API, {
-      method: "POST",
-      body: fdata,
-      headers: {
-        Accept: "multipart/form-data",
-      },
+  QRCode.toDataURL(
+    "otpauth://totp/SecretKey?secret=KM2XKS3PKAQWG63GIIYDKMTNINASG233NBETKUKJMJDUUZBRKV4A"
+  )
+    .then((url) => {
+      console.log(url);
+    })
+    .catch((err) => {
+      console.error(err);
     });
-  };
+
   return (
-    <>
-      <input type="file" onChange={(e) => handleChange(e.target.files[0])} />
-      <button onClick={handleSubmit}>submit</button>
-    </>
+    <div className="container">
+      <div className="row">
+        <div className="border p-5"></div>
+      </div>
+    </div>
   );
 };
 

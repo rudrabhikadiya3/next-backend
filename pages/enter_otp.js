@@ -1,6 +1,6 @@
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import { dec, secretkeys } from "../helper/common";
+import { dec, enc, secretkeys } from "../helper/common";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { setCookie } from "cookies-next";
@@ -28,6 +28,8 @@ const EnterOtp = () => {
           router.push("/");
         }, 2000);
         toast.success(otpVerifyAPI.message);
+        toast.success(`Login successfully`);
+        // setCookie("uid", otpVerifyAPI.user._id);
         setCookie("uid", otpVerifyAPI.user._id);
       } else {
         toast.error(otpVerifyAPI.message);

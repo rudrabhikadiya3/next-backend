@@ -29,19 +29,26 @@ export default function Header() {
             </li>
 
             {hasCookie("uid") ? (
-              <li className="nav-item">
-                <Link
-                  href="/signup"
-                  className="nav-link"
-                  onClick={handleLogout}
-                >
-                  Logout
-                </Link>
-              </li>
+              <>
+                <li className="nav-item">
+                  <Link
+                    href="/signup"
+                    className="nav-link"
+                    onClick={handleLogout}
+                  >
+                    Logout
+                  </Link>
+                </li>
+                <li className="nav-item">
+                  <Link href="/my_account" className="nav-link">
+                    My account
+                  </Link>
+                </li>
+              </>
             ) : (
               <li className="nav-item">
                 <Link href="/signup" className="nav-link">
-                  signup
+                  Signup
                 </Link>
               </li>
             )}

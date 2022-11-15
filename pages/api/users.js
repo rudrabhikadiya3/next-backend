@@ -20,6 +20,7 @@ export default async function handler(req, res) {
           otp: Math.floor(Math.random() * 100000),
           otpGenerateTime: Date.now(),
           isEmailVerfied: false,
+          is2FAEnabel: false,
         });
         res.status(201).json({
           success: true,

@@ -12,6 +12,7 @@ import {
   TextField,
 } from "@mui/material";
 import { useState } from "react";
+import withAuth from "../components/Auth";
 import { NEW_PRODUCT_API } from "../URLs";
 const addproduct = () => {
   const [open, setOpen] = useState(false);
@@ -179,4 +180,5 @@ const addproduct = () => {
   );
 };
 
-export default addproduct;
+// export default addproduct;
+export default withAuth(addproduct);
