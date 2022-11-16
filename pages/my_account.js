@@ -1,34 +1,13 @@
-import { getCookies } from "cookies-next";
-import React, { useState } from "react";
-import withAuth from "../components/Auth";
+import { useEffect } from "react";
+import { useRef } from "react";
 
-const my_account = () => {
-  const [res, setRes] = useState("");
-  const [userOTP, setUserOTP] = useState("");
+const my_account = ({ user2FAStatus }) => {
+  const switchRef = useRef();
+  console.log("user2FAStatus", user2FAStatus);
+  useEffect(() => {
+    switchRef.current.checked = user2FAStatus;
+  }, []);
 
-  const handleChange = async (is2FAEnabel) => {
-    //on swith on
-    if (is2FAEnabel) {
-      const call = await fetch(
-        "http://localhost:3000/api/users/authentication",
-        {
-          method: "POST",
-          body: JSON.stringify(getCookies("uid")),
-        }
-      );
-      const res = await call.json();
-      console.log("uid", getCookies("uid"));
-      setRes(res);
-    }
-  };
-  // const submityOtp = async () => {
-  //   const call = await fetch("http://localhost:3000/api/users/2faOtpVerify", {
-  //     method: "POST",
-  //     body: JSON.stringify({ uid: getCookies("uid").uid, userOTP }),
-  //   });
-  //   const res = await call.json();
-  // };
-  console.log("res", res);
   return (
     <div className="container">
       <div className="row justify-content-center">
@@ -38,33 +17,42 @@ const my_account = () => {
             <input
               className="form-check-input"
               type="checkbox"
-              onChange={(e) => {
-                handleChange(e.target.checked);
-              }}
+              ref={switchRef}
             />
             <label className="form-check-label">
               Enable 2FA authentication
             </label>
           </div>
           <hr />
-          {res ? (
-            <>
-              <div className="text-center">
-                <img src={res.user.QRcode} />
-                <h6 className="my-3">{res.user.base32}</h6>
-                <input
-                  type="number"
-                  placeholder="enter otp..."
-                  onChange={(e) => setUserOTP(e.target.value)}
-                />
-                <button onClick={submityOtp}>submit</button>
-              </div>
-            </>
-          ) : null}
         </div>
       </div>
     </div>
   );
 };
 
-export default withAuth(my_account);
+export async function getServerSideProps({ req }) {
+  if (
+    req.cookies.uid != "" &&
+    req.cookies.uid != undefined &&
+    req.cookies.uid != "undefined"
+  ) {
+    const call = await fetch(
+      "http://localhost:3000/api/users/" + req.cookies.uid
+    );
+    const res = await call.json();
+    return {
+      props: {
+        user2FAStatus: res.data.is2FAEnabel,
+      },
+    };
+  } else {
+    return {
+      redirect: {
+        destination: "/signup",
+        permanent: false,
+      },
+    };
+  }
+}
+
+export default my_account;
