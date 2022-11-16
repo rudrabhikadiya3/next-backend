@@ -1,14 +1,20 @@
 import Link from "next/link";
 import { deleteCookie } from "cookies-next";
 import { hasCookie } from "cookies-next";
+import { useState } from "react";
+import { useEffect } from "react";
 
 export default function Header() {
   const handleLogout = () => {
     deleteCookie("uid");
   };
+  const [isUserLoggedIn, setIsUserLoggedIn] = useState(null);
+  useEffect(() => {
+    hasCookie("uid") ? setIsUserLoggedIn(true) : setIsUserLoggedIn(false);
+  });
   return (
     <>
-      <nav className="navbar navbar-expand-lg navbar-light bg-light">
+      <div className="navbar navbar-expand-lg navbar-light bg-light">
         <a className="navbar-brand" href="/">
           Rudra <span className="text-warning">&spades;</span>
         </a>
@@ -28,7 +34,7 @@ export default function Header() {
               </Link>
             </li>
 
-            {hasCookie("uid") ? (
+            {isUserLoggedIn ? (
               <>
                 <li className="nav-item">
                   <Link
@@ -54,7 +60,7 @@ export default function Header() {
             )}
           </ul>
         </div>
-      </nav>
+      </div>
     </>
   );
 }
