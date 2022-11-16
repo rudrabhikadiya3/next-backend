@@ -183,7 +183,9 @@ const addproduct = () => {
 export default addproduct;
 export async function getServerSideProps({ req }) {
   if (req.cookies.uid != "" && req.cookies.uid != undefined) {
-    return null;
+    return {
+      props: {},
+    };
   } else {
     return {
       redirect: {
