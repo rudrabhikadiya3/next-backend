@@ -12,7 +12,6 @@ import {
   TextField,
 } from "@mui/material";
 import { useState } from "react";
-import withAuth from "../components/Auth";
 import { NEW_PRODUCT_API } from "../URLs";
 const addproduct = () => {
   const [open, setOpen] = useState(false);
@@ -181,4 +180,16 @@ const addproduct = () => {
 };
 
 // export default addproduct;
-export default withAuth(addproduct);
+export default addproduct;
+export async function getServerSideProps({ req }) {
+  if (req.cookies.uid != "" && req.cookies.uid != undefined) {
+    return null;
+  } else {
+    return {
+      redirect: {
+        destination: "/signup",
+        permanent: false,
+      },
+    };
+  }
+}
