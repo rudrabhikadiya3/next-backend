@@ -21,14 +21,15 @@ const twoFAotp = () => {
         }
       );
       const res = await call.json();
-      console.log(res);
+      console.log("2FAotpVerify API", res);
+
       if (res.success === true) {
         setCookie("uid", res.user._id);
         setTimeout(() => {
           router.push("/");
         }, 2000);
         toast.success(res.message);
-        // use logged in
+        // user logged in
       } else {
         toast.error(res.message);
       }

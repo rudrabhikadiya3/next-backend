@@ -1,6 +1,6 @@
-import { dec, secretkeys } from "../../helper/common";
-import dbConnect from "../../helper/DBconnect";
-import Users from "../../models/Users";
+import { dec, secretkeys } from "../../../helper/common";
+import dbConnect from "../../../helper/DBconnect";
+import Users from "../../../models/Users";
 
 export default async function handler(req, res) {
   dbConnect();

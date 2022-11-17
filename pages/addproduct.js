@@ -179,7 +179,7 @@ const addproduct = () => {
   );
 };
 
-// export default addproduct;
+// for privateRoute
 export default addproduct;
 export async function getServerSideProps({ req }) {
   if (req.cookies.uid != "" && req.cookies.uid != undefined) {
