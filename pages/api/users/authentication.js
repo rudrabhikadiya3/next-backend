@@ -1,35 +1,39 @@
+import { enc, secretkeys } from "../../../helper/common";
 import dbConnect from "../../../helper/DBconnect";
 import Users from "../../../models/Users";
 var speakeasy = require("speakeasy");
 var QRCode = require("qrcode");
+
+// generate details for authentication (speakeasy) and set in document
 export default async function handler(req, res) {
   dbConnect();
   try {
-    let coockie = JSON.parse(req.body);
-    console.log("id", coockie.uid);
+    const coockie = JSON.parse(req.body);
+    console.log("coockie", coockie);
     let user = await Users.findOne({ _id: coockie.uid });
-    console.log("user", user);
     if (!user.is2FAEnabel) {
-      let secret = await speakeasy.generateSecret();
-      console.log("secret", secret);
+      let secret = await speakeasy.generateSecret({
+        name: "myweb.com", // name appear in auth app
+      });
+
       let generateQR = await QRCode.toDataURL(secret.otpauth_url);
 
       let update = await Users.updateOne(
         { _id: coockie.uid },
-        { $set: { QRcode: generateQR, base32: secret.base32 } }
+        {
+          $set: {
+            base32: enc(secret.base32, secretkeys.base32),
+          },
+        }
       );
-      console.log("user", update);
-      console.log("id in if", coockie.uid);
-      // console.log("QR link", generateQR);
+
       let user = await Users.findOne({ _id: coockie.uid });
-      console.log("resp", user);
-      res
-        .status(200)
-        .json({ success: true, user, message: `2FA is enabled successfully` });
-    } else {
-      res
-        .status(200)
-        .json({ success: false, message: `2FA is already enabled` });
+      res.status(200).json({
+        success: true,
+        QR: generateQR,
+        user,
+        message: `please scan code in app`,
+      });
     }
   } catch (error) {
     res.status(400).json({ success: false, message: error });

@@ -15,12 +15,21 @@ export default async function handler(req, res) {
           credentials.password === dec(isUser.password, secretkeys.password)
         ) {
           if (isUser.isEmailVerfied) {
-            return res.status(201).json({
-              success: true,
-              isEmailVerfied: true,
-              user: isUser,
-              message: `Login succesfully`,
-            });
+            if (isUser.is2FAEnabel) {
+              return res.status(201).json({
+                success: true,
+                isEmailVerfied: true,
+                user: isUser,
+                message: `verify 2FA authentication`,
+              });
+            } else {
+              return res.status(201).json({
+                success: true,
+                isEmailVerfied: true,
+                user: isUser,
+                message: `Login succesfully`,
+              });
+            }
           } else {
             return res.status(201).json({
               success: false,

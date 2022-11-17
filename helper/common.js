@@ -20,6 +20,8 @@ export const secretkeys = {
   password: "qwertyuiopasdfghjklzxcvbnm123456",
   id: "llllaxsdcfgvbhnjmkuuesirwsradsad",
   json: "asdasdadsasdasdcxzswerfgtyhjnmkl",
+  base32: "ASXDhjnh^0SW#$%^&*BGKLbvcdfc3032",
+  qr: "ASXDhgfrgv7pl586&*BGKLbvcd5s6vzm",
 };
 
 export const regex = {

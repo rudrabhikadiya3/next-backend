@@ -5,7 +5,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { setCookie } from "cookies-next";
 
-const signup = ({ warning }) => {
+const Signup = ({ warning }) => {
   const [form, setForm] = useState("login");
   const [userData, setUserData] = useState({
     name: "",
@@ -38,7 +38,7 @@ const signup = ({ warning }) => {
       userData.password
     ) {
       seterror("");
-      const res = await fetch("http://localhost:3000/api/users", {
+      const res = await fetch(process.env.BASE_URL + "api/users", {
         method: "POST",
         body: JSON.stringify(userData),
       });
@@ -56,9 +56,9 @@ const signup = ({ warning }) => {
       }
     }
   };
-
+  console.log(process.env.BASE_URL + "api/login");
   const handleLogin = async () => {
-    const res = await fetch("http://localhost:3000/api/login", {
+    const res = await fetch(process.env.BASE_URL + "api/login", {
       method: "POST",
       body: JSON.stringify(loginData),
       headers: {
@@ -69,13 +69,20 @@ const signup = ({ warning }) => {
 
     console.log("LOGIN API RESPONSE", loginApi);
 
-    if (loginApi.success && loginApi.user.isEmailVerfied) {
-      setTimeout(() => {
-        router.push({ pathname: "/" });
-      }, 2000);
-      toast.success(loginApi.message);
-      // setCookie("uid", loginApi.user._id);
-      setCookie("uid", loginApi.user._id);
+    if (loginApi.success) {
+      if (loginApi.user.is2FAEnabel) {
+        localStorage.setItem("id", enc(loginApi.user._id, secretkeys.id));
+        setTimeout(() => {
+          router.push("/twoFAotp");
+        }, 2000);
+        toast.info(loginApi.message);
+      } else {
+        setTimeout(() => {
+          router.push("/");
+        }, 2000);
+        toast.success(loginApi.message);
+        setCookie("uid", loginApi.user._id);
+      }
     } else {
       toast.error(loginApi.message);
     }
@@ -85,10 +92,13 @@ const signup = ({ warning }) => {
       !loginApi.isEmailVerfied &&
       loginApi.message === "Please verify your email"
     ) {
-      const res = await fetch("http://localhost:3000/api/users/regenerateotp", {
-        method: "PUT",
-        body: JSON.stringify(loginApi.user._id),
-      });
+      const res = await fetch(
+        process.env.BASE_URL + "api/users/regenerateotp",
+        {
+          method: "PUT",
+          body: JSON.stringify(loginApi.user._id),
+        }
+      );
       const reOtpApi = await res.json();
       setTimeout(() => {
         Router.push({
@@ -238,4 +248,4 @@ const signup = ({ warning }) => {
   );
 };
 
-export default signup;
+export default Signup;

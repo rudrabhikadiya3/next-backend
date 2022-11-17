@@ -5,6 +5,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { setCookie } from "cookies-next";
 
+// enter email otp page
 const EnterOtp = () => {
   const [otp, setOtp] = useState("");
   const [counter, setCounter] = useState(15);
@@ -15,7 +16,7 @@ const EnterOtp = () => {
     if (otp !== "") {
       let id = localStorage.getItem("id");
       const res = await fetch(
-        "http://localhost:3000/api/users/otp_verification",
+        process.env.BASE_URL + "api/users/otp_verification",
         {
           method: "POST",
           body: JSON.stringify({ otp, id: dec(id, secretkeys.id) }),
@@ -29,7 +30,6 @@ const EnterOtp = () => {
         }, 2000);
         toast.success(otpVerifyAPI.message);
         toast.success(`Login successfully`);
-        // setCookie("uid", otpVerifyAPI.user._id);
         setCookie("uid", otpVerifyAPI.user._id);
       } else {
         toast.error(otpVerifyAPI.message);
@@ -42,10 +42,13 @@ const EnterOtp = () => {
   const resendOTP = async () => {
     if (counter == 0) {
       let id = localStorage.getItem("id");
-      const res = await fetch("http://localhost:3000/api/users/regenerateotp", {
-        method: "PUT",
-        body: JSON.stringify(dec(id, secretkeys.id)),
-      });
+      const res = await fetch(
+        process.env.BASE_URL + "api/users/regenerateotp",
+        {
+          method: "PUT",
+          body: JSON.stringify(dec(id, secretkeys.id)),
+        }
+      );
       const reOtpApi = await res.json();
       console.log("reOtpApi ==>", reOtpApi);
       if (reOtpApi.success) {
