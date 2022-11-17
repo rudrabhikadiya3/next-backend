@@ -1,9 +1,9 @@
-import { getCookies, setCookie } from "cookies-next";
+import { setCookie } from "cookies-next";
 import { useRouter } from "next/router";
 import { useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { dec, secretkeys } from "../helper/common";
+import { dec, secretkeys } from "../../helper/common";
 
 // otp input for 2FA otp
 const twoFAotp = () => {

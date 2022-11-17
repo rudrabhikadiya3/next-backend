@@ -26,7 +26,6 @@ export default function Home() {
   };
 
   const handleSubmit = () => {
-    console.log(inputRef.current.value);
     if (!update) {
       fetch(NAME_API + "insert", {
         method: "POST",

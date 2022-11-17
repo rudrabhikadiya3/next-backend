@@ -28,37 +28,33 @@ export default function Header() {
                 Home
               </Link>
             </li>
-            <li className="nav-item">
-              <Link href="/addproduct" className="nav-link">
-                product+
-              </Link>
-            </li>
-
             {isUserLoggedIn ? (
-              <>
-                <li className="nav-item">
-                  <Link
-                    href="/signup"
-                    className="nav-link"
-                    onClick={handleLogout}
-                  >
-                    Logout
-                  </Link>
-                </li>
-                <li className="nav-item">
-                  <Link href="/my_account" className="nav-link">
-                    My account
-                  </Link>
-                </li>
-              </>
-            ) : (
               <li className="nav-item">
-                <Link href="/signup" className="nav-link">
-                  Signup
+                <Link href="/my_account" className="nav-link">
+                  My account
                 </Link>
               </li>
-            )}
+            ) : null}
           </ul>
+          {isUserLoggedIn ? (
+            <>
+              <button className="btn btn-outline-secondary ms-auto me-5">
+                <Link
+                  href="/signup"
+                  className="nav-link"
+                  onClick={handleLogout}
+                >
+                  Logout
+                </Link>
+              </button>
+            </>
+          ) : (
+            <button className="btn btn-outline-primary ms-auto me-5">
+              <Link href="/signup" className="nav-link">
+                Login
+              </Link>
+            </button>
+          )}
         </div>
       </div>
     </>

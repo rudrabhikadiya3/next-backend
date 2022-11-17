@@ -13,6 +13,7 @@ module.exports =
         isEmailVerfied: { type: Boolean },
         is2FAEnabel: { type: Boolean },
         base32: { type: String },
+        balance: { type: Number },
       },
       { versionKey: false }
     )

@@ -47,7 +47,7 @@ const Signup = ({ warning }) => {
 
       if (signinApi.success) {
         setTimeout(() => {
-          router.push("/enter_otp");
+          router.push("/signup/enter_otp");
         }, 2000);
         localStorage.setItem("id", enc(signinApi.newUser._id, secretkeys.id));
         toast.success(signinApi.message);
@@ -56,9 +56,8 @@ const Signup = ({ warning }) => {
       }
     }
   };
-  console.log(process.env.BASE_URL + "api/login");
   const handleLogin = async () => {
-    const res = await fetch(process.env.BASE_URL + "api/login", {
+    const res = await fetch(process.env.BASE_URL + "api/users/login", {
       method: "POST",
       body: JSON.stringify(loginData),
       headers: {
@@ -73,7 +72,7 @@ const Signup = ({ warning }) => {
       if (loginApi.user.is2FAEnabel) {
         localStorage.setItem("id", enc(loginApi.user._id, secretkeys.id));
         setTimeout(() => {
-          router.push("/twoFAotp");
+          router.push("/signup/twoFAotp");
         }, 2000);
         toast.info(loginApi.message);
       } else {
@@ -102,7 +101,7 @@ const Signup = ({ warning }) => {
       const reOtpApi = await res.json();
       setTimeout(() => {
         Router.push({
-          pathname: "/enter_otp",
+          pathname: "/signup/enter_otp",
           query: "reverify",
         });
       }, 2000);
