@@ -4,8 +4,6 @@ import Name from "../../../models/Name";
 export default async function handler(req, res) {
   dbConnect();
   const data = JSON.parse(req.body);
-  console.log("body", data);
-  console.log("id", data.id);
   try {
     const user = await Name.updateOne(
       { _id: data.id },

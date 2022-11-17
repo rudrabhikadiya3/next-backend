@@ -21,6 +21,7 @@ export default async function handler(req, res) {
           otpGenerateTime: Date.now(),
           isEmailVerfied: false,
           is2FAEnabel: false,
+          balance: 0,
         });
         res.status(201).json({
           success: true,

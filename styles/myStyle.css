@@ -30,3 +30,18 @@ a {
 .form-check .form-check-input {
   float: unset !important;
 }
+
+.balance-box {
+  margin-top: 34px !important;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 300px;
+  flex-direction: column;
+  border: 2px solid green;
+  border-radius: 10px;
+}
+.balance-box h1 {
+  margin-bottom: 32px;
+  margin-top: 32px;
+}

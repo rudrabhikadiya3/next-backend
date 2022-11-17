@@ -14,7 +14,6 @@ export default async function handler(req, res) {
     const betweenTime = Date.now() - user.otpGenerateTime;
     const fiveMin = 60000;
 
-    console.log("betweenTime", betweenTime);
     if (betweenTime < fiveMin) {
       if (Number(data.otp) === user.otp) {
         const setEmailVerify = await Users.updateOne(

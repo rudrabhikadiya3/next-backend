@@ -1,3 +1,5 @@
+import { getCookies } from "cookies-next";
+
 const crypto = require("crypto");
 
 export function dec(encryptedMessage, secret) {
@@ -26,4 +28,8 @@ export const secretkeys = {
 
 export const regex = {
   mail: /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
+};
+
+export const crrUserID = () => {
+  return getCookies("uid").uid;
 };

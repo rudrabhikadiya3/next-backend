@@ -5,26 +5,15 @@ import { getCookies } from "cookies-next";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { dec, secretkeys } from "../helper/common";
+import Balance from "../components/mini_component/Balance";
 
-const my_account = ({ user2FAStatus }) => {
+const my_account = ({ user2FAStatus, crrUserDetails }) => {
+  const bal = crrUserDetails.user.balance;
   const [CheckBox, setCheckBox] = useState(user2FAStatus); //retun checkbox status (true / false)
-  const [crrUserDetails, setcrrUserDetails] = useState({}); //for getting QR and so on
-  const [userOTP, setUserOTP] = useState("");
+
+  const [userOTP, setUserOTP] = useState(""); // 2FA viceversa otp
 
   const switchRef = useRef();
-
-  const getQRdetails = async () => {
-    const call = await fetch(
-      process.env.BASE_URL + "api/users/authentication",
-      {
-        method: "POST",
-        body: JSON.stringify(getCookies("uid")),
-      }
-    );
-    const res = await call.json();
-    setcrrUserDetails(res);
-    console.log(res);
-  };
 
   const renderDetails = () => {
     if (CheckBox === true) {
@@ -80,7 +69,6 @@ const my_account = ({ user2FAStatus }) => {
         }
       );
       const res = await call.json();
-      console.log(res);
       if (res.success) {
         toast.success(res.message);
       } else {
@@ -88,15 +76,17 @@ const my_account = ({ user2FAStatus }) => {
       }
     }
   };
+
   useEffect(() => {
     switchRef.current.checked = user2FAStatus;
-    getQRdetails();
+    // getQRdetails();
   }, []);
 
   return (
     <div className="container">
       <ToastContainer />
       <div className="row justify-content-center">
+        <Balance bal={bal} />
         <div className="border p-5 m-5 w-75 text-center">
           <h2>2FA authentication</h2>
           <div className="form-check form-switch mt-4">
@@ -127,9 +117,19 @@ export async function getServerSideProps({ req }) {
       process.env.BASE_URL + "api/users/" + req.cookies.uid
     );
     const res = await call.json();
+
+    const callAuth = await fetch(
+      process.env.BASE_URL + "api/users/authentication",
+      {
+        method: "POST",
+        body: req.cookies.uid,
+      }
+    );
+    const resAuth = await callAuth.json();
     return {
       props: {
         user2FAStatus: res.data.is2FAEnabel,
+        crrUserDetails: resAuth,
       },
     };
   } else {
