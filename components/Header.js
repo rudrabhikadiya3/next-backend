@@ -28,6 +28,11 @@ export default function Header() {
                 Home
               </Link>
             </li>
+            <li className="nav-item active">
+              <Link href="/dashboard" className="nav-link">
+                Dashboard
+              </Link>
+            </li>
             {isUserLoggedIn ? (
               <li className="nav-item">
                 <Link href="/my_account" className="nav-link">

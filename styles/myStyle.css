@@ -13,9 +13,7 @@ input::-webkit-inner-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }
-.row > * {
-  width: 32% !important;
-}
+
 a {
   cursor: pointer;
 }
@@ -40,6 +38,8 @@ a {
   flex-direction: column;
   border: 2px solid green;
   border-radius: 10px;
+  width: 33% !important;
+  margin: 0 auto;
 }
 .balance-box h1 {
   margin-bottom: 32px;

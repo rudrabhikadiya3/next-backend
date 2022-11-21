@@ -31,6 +31,7 @@ apiRoute.use(upload.array("file"));
 apiRoute.post(async (req, res) => {
   dbConnect();
   const data = await JSON.parse(req.body.data);
+  console.log("product", data);
   try {
     const newProduct = await Products.create({
       title: data.title,

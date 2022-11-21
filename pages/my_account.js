@@ -85,9 +85,9 @@ const my_account = ({ user2FAStatus, crrUserDetails }) => {
   return (
     <div className="container">
       <ToastContainer />
-      <div className="row justify-content-center">
+      <div className="row justify-content-center flex-column ">
         <Balance bal={bal} />
-        <div className="border p-5 m-5 w-75 text-center">
+        <div className="border p-5 m-5 w-75 text-center mx-auto">
           <h2>2FA authentication</h2>
           <div className="form-check form-switch mt-4">
             <input
