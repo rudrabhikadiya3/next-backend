@@ -11,6 +11,7 @@
   "dependencies": {
     "@emotion/react": "^11.10.5",
     "@emotion/styled": "^11.10.5",
+    "@mui/lab": "^5.0.0-alpha.108",
     "@mui/material": "^5.10.12",
     "bootstrap": "^5.2.2",
     "bootstrap-icons": "^1.9.1",

@@ -33,3 +33,17 @@ export const regex = {
 export const crrUserID = () => {
   return getCookies("uid").uid;
 };
+
+export const UTStoDate = (a) => {
+  var date = new Date(a);
+  var day = date.getDate();
+  var month = date.getMonth();
+  var year = date.getFullYear();
+
+  var hours = date.getHours();
+  var minutes = date.getMinutes();
+
+  let time = `${day}/${month + 1}/${year} ${hours}:${minutes}`;
+  return time;
+};
+const borrrowerName = () => {};

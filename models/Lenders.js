@@ -1,19 +1,17 @@
 import mongoose, { Schema } from "mongoose";
 module.exports =
-  mongoose.models.Borrowers ||
+  mongoose.models.Lenders ||
   mongoose.model(
-    "Borrowers",
+    "Lenders",
     new Schema(
       {
-        name: { type: String },
-        borrowAmount: { type: String },
+        borrower_id: { type: String },
+        lender_id: { type: String },
+        loan_amount: { type: String },
         duration: { type: Number },
         intrest: { type: Number },
-        files: { type: Array },
-        approved: { type: Boolean },
         status: { type: Number },
-        borrower_id: { type: String },
-        createdAt: { type: Number },
+        ApprovedAt: { type: Number },
       },
       { versionKey: false, timestamps: false }
     )

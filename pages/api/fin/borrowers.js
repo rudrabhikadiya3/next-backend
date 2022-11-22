@@ -61,7 +61,10 @@ apiRoute.post(async (req, res) => {
       intrest: data.intrest,
       files: fileName,
       approved: false,
-      user_id: data.user_id,
+      status: 0,
+      borrower_id: data.borrower_id,
+      createdAt: Date.now(),
+      lender: null,
     });
     res.status(200).json({ success: true, data: borrowReq }); // response
   } catch (error) {
