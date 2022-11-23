@@ -21,7 +21,7 @@ const dashboard = ({ user, borrowers, lenderFilter }) => {
   const [alert, setAlert] = useState(false);
   const [rowData, setRowData] = useState("");
   const [boData, setBoData] = useState({
-    name: user.name,
+    user_id: user._id,
     borrowAmount: "",
     duration: 1,
     intrest: 5,
@@ -29,6 +29,8 @@ const dashboard = ({ user, borrowers, lenderFilter }) => {
   }); // form's data
   const [files, setFiles] = useState(null);
   const [tab, setTab] = useState("1");
+
+  // console.log(user._id);
 
   const handleTabChange = (event, newTab) => {
     setTab(newTab);
@@ -48,7 +50,6 @@ const dashboard = ({ user, borrowers, lenderFilter }) => {
               fdata.append("files", files[i]);
             }
             fdata.append("data", JSON.stringify(boData));
-            console.log(fdata);
             const res = await fetch(
               `${process.env.BASE_URL}api/fin/borrowers`,
               {
@@ -62,7 +63,7 @@ const dashboard = ({ user, borrowers, lenderFilter }) => {
             const borrowersAPI = await res.json();
             if (borrowersAPI.success) {
               console.log("borrowersAPI", borrowersAPI.data);
-              borrowers.data.push(borrowersAPI.data);
+              borrowers.data.push({ name: user.name, ...borrowersAPI.data });
               toast.success("request successsully submitted");
 
               setBoData({
@@ -109,6 +110,7 @@ const dashboard = ({ user, borrowers, lenderFilter }) => {
               <th scope="col">Intrest(%)</th>
               <th scope="col">Duration(hr)</th>
               <th scope="col">collateral</th>
+              <th scope="col">Requested at</th>
               <th scope="col">Status</th>
               <th scope="col">Action</th>
             </tr>
@@ -136,6 +138,7 @@ const dashboard = ({ user, borrowers, lenderFilter }) => {
                       alt="colletral"
                     />
                   </td>
+                  <td>{UTStoDate(b.createdAt)}</td>
                   <td>
                     {b.status === 0 && (
                       <span className="badge text-bg-primary">Pending</span>
@@ -188,7 +191,7 @@ const dashboard = ({ user, borrowers, lenderFilter }) => {
               return (
                 <tr key={i}>
                   <th scope="row">{i + 1}</th>
-                  <td>{"Borrower Name"}</td>
+                  <td>{l.name}</td>
                   <td>${l.loan_amount}</td>
                   <td>{l.duration}hr</td>
                   <td>{l.intrest}</td>
@@ -211,8 +214,6 @@ const dashboard = ({ user, borrowers, lenderFilter }) => {
   };
 
   const handleApprove = async () => {
-    console.log(rowData);
-    console.log(user);
     const { borrowAmount } = rowData;
     const { balance } = user;
 
@@ -233,7 +234,7 @@ const dashboard = ({ user, borrowers, lenderFilter }) => {
         });
         const transferLoanAPI = await res.json();
         setAlert(false);
-        console.log(transferLoanAPI);
+        console.log("transferLoanAPI", transferLoanAPI);
         if (transferLoanAPI.success) {
           toast.success(transferLoanAPI.message);
         } else {
@@ -251,6 +252,7 @@ const dashboard = ({ user, borrowers, lenderFilter }) => {
     <div className="container">
       <ToastContainer />
       <div className="row p-5">
+        <h3 className="text-center">Hello, {user.name} 👋</h3>
         <Box sx={{ width: "90%", typography: "body1" }}>
           <TabContext value={tab}>
             <Box sx={{ borderBottom: 1, borderColor: "divider" }}>

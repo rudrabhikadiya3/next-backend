@@ -5,14 +5,12 @@ module.exports =
     "Borrowers",
     new Schema(
       {
-        name: { type: String },
-        borrowAmount: { type: String },
-        duration: { type: Number },
-        intrest: { type: Number },
-        files: { type: Array },
-        approved: { type: Boolean },
-        status: { type: Number },
         borrower_id: { type: String },
+        borrowAmount: { type: String },
+        intrest: { type: Number },
+        duration: { type: Number },
+        files: { type: Array },
+        status: { type: Number },
         createdAt: { type: Number },
       },
       { versionKey: false, timestamps: false }

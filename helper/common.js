@@ -41,9 +41,9 @@ export const UTStoDate = (a) => {
   var year = date.getFullYear();
 
   var hours = date.getHours();
-  var minutes = date.getMinutes();
+  var minutes =
+    date.getMinutes() < 10 ? "0" + date.getMinutes() : date.getMinutes();
 
   let time = `${day}/${month + 1}/${year} ${hours}:${minutes}`;
   return time;
 };
-const borrrowerName = () => {};
