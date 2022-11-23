@@ -34,8 +34,8 @@ export const crrUserID = () => {
   return getCookies("uid").uid;
 };
 
-export const UTStoDate = (a) => {
-  var date = new Date(a);
+export const UTStoDate = (uts) => {
+  var date = new Date(uts);
   var day = date.getDate();
   var month = date.getMonth();
   var year = date.getFullYear();

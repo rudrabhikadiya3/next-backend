@@ -1,6 +1,7 @@
 import Borrowers from "../../../models/Borrowers";
 import Lenders from "../../../models/Lenders";
 import Users from "../../../models/Users";
+import Transactions from "../../../models/Transactions";
 import dbConnect from "../../../helper/DBconnect";
 
 export default async function handler(req, res) {
@@ -48,6 +49,22 @@ export default async function handler(req, res) {
             { _id: borrower_id },
             { $inc: { balance: loan_amount } }
           );
+          // transaction
+          const debitFromLender = await Transactions.create({
+            user_id: lender_id,
+            from_id: borrower_id,
+            type: 0,
+            amount: loan_amount,
+            transactedAt: Date.now(),
+          });
+          const creditInBorrower = await Transactions.create({
+            user_id: borrower_id,
+            from_id: lender_id,
+            type: 1,
+            amount: loan_amount,
+            transactedAt: Date.now(),
+          });
+
           res.status(200).json({
             success: true,
             message: "Loan amount has been transfered",
@@ -66,12 +83,10 @@ export default async function handler(req, res) {
       res.status(400).json({ success: false, message: error.message });
     }
   } else {
-    res
-      .status(400)
-      .json({
-        success: false,
-        message: `${req.method} is not allowed`,
-        data: [],
-      });
+    res.status(400).json({
+      success: false,
+      message: `${req.method} is not allowed`,
+      data: [],
+    });
   }
 }

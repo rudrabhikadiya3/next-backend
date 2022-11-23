@@ -4,10 +4,10 @@ import { useRef } from "react";
 import { getCookies } from "cookies-next";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { dec, secretkeys } from "../helper/common";
+import { dec, secretkeys, UTStoDate } from "../helper/common";
 import Balance from "../components/mini_component/Balance";
 
-const my_account = ({ user2FAStatus, crrUserDetails }) => {
+const my_account = ({ user2FAStatus, crrUserDetails, myTransaction }) => {
   const bal = crrUserDetails.user.balance;
   const [CheckBox, setCheckBox] = useState(user2FAStatus); //retun checkbox status (true / false)
 
@@ -15,7 +15,7 @@ const my_account = ({ user2FAStatus, crrUserDetails }) => {
 
   const switchRef = useRef();
 
-  const renderDetails = () => {
+  const QRrender = () => {
     if (CheckBox === true) {
       if (!user2FAStatus) {
         return (
@@ -77,16 +77,48 @@ const my_account = ({ user2FAStatus, crrUserDetails }) => {
     }
   };
 
+  const transactions = () => {};
+
   useEffect(() => {
     switchRef.current.checked = user2FAStatus;
-    // getQRdetails();
   }, []);
 
   return (
     <div className="container">
       <ToastContainer />
-      <div className="row justify-content-center flex-column ">
+      <div className="row justify-content-center">
         <Balance bal={bal} />
+        <div className="transaction-box mt-5">
+          <h3>Recent Transaction</h3>
+          <div className="card">
+            <ul className="list-group list-group-flush">
+              {myTransaction.map((t, i) => {
+                if (t.type === 0) {
+                  return (
+                    <li className="list-group-item red-bg">
+                      <div>
+                        <p className="name">{t.from_name}</p>
+                        <p className="amount text-danger">-${t.amount}</p>
+                      </div>
+                      <span className="time">{UTStoDate(t.transactedAt)}</span>
+                    </li>
+                  );
+                } else {
+                  return (
+                    <li className="list-group-item green-bg">
+                      <div>
+                        <p className="name">{t.from_name}</p>
+                        <p className="amount text-success">+${t.amount}</p>
+                      </div>
+                      <span className="time">{UTStoDate(t.transactedAt)}</span>
+                    </li>
+                  );
+                }
+              })}
+            </ul>
+          </div>
+        </div>
+
         <div className="border p-5 m-5 w-75 text-center mx-auto">
           <h2>2FA authentication</h2>
           <div className="form-check form-switch mt-4">
@@ -99,7 +131,7 @@ const my_account = ({ user2FAStatus, crrUserDetails }) => {
             <label className="form-check-label">2FA authentication</label>
           </div>
           <hr />
-          {renderDetails()}
+          {QRrender()}
         </div>
       </div>
     </div>
@@ -126,10 +158,29 @@ export async function getServerSideProps({ req }) {
       }
     );
     const resAuth = await callAuth.json();
+
+    const transactionRes = await fetch(
+      process.env.BASE_URL + "api/fin/transactions"
+    );
+
+    const allTransaction = await transactionRes.json();
+
+    const myTransaction = await allTransaction.data.filter(
+      (t) => t.user_id == req.cookies.uid
+    );
+    // sort by time (latest up)
+    myTransaction.sort((a, b) =>
+      a.transactedAt > b.transactedAt
+        ? -1
+        : b.transactedAt > a.transactedAt
+        ? 1
+        : 0
+    );
     return {
       props: {
         user2FAStatus: res.data.is2FAEnabel,
         crrUserDetails: resAuth,
+        myTransaction,
       },
     };
   } else {

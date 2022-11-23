@@ -39,9 +39,46 @@ a {
   border: 2px solid green;
   border-radius: 10px;
   width: 33% !important;
-  margin: 0 auto;
+  /* margin: 0 auto; */
 }
 .balance-box h1 {
   margin-bottom: 32px;
   margin-top: 32px;
+}
+.transaction-box {
+  border: 2px solid gray;
+  border-radius: 10px;
+  padding: 50px;
+  margin-left: 10px;
+  margin-top: 5em;
+  width: 33% !important;
+  height: 400px !important;
+  overflow-y: scroll;
+}
+.transaction-box h3 {
+  border-bottom: 2px solid gray;
+}
+.list-group-item div {
+  display: flex !important;
+  justify-content: space-between;
+}
+.list-group-item .name {
+  margin: 0;
+  font-weight: 600;
+}
+.list-group-item .amount {
+  margin: 0;
+  margin-top: 5px;
+  font-weight: 700;
+}
+.list-group-item .time {
+  font-style: italic;
+  font-size: 12px;
+}
+
+.red-bg {
+  background-color: #dc344524 !important;
+}
+.green-bg {
+  background-color: #19875438 !important;
 }

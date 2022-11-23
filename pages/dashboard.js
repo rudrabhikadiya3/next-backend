@@ -51,7 +51,7 @@ const dashboard = ({ user, borrowers, lenderFilter }) => {
             }
             fdata.append("data", JSON.stringify(boData));
             const res = await fetch(
-              `${process.env.BASE_URL}api/fin/get_borrowers`,
+              `${process.env.BASE_URL}api/fin/borrowers`,
               {
                 method: "POST",
                 body: fdata,
@@ -64,7 +64,7 @@ const dashboard = ({ user, borrowers, lenderFilter }) => {
             if (borrowersAPI.success) {
               console.log("borrowersAPI", borrowersAPI.data);
               borrowers.data.push({ name: user.name, ...borrowersAPI.data });
-              toast.success("request successsully submitted");
+              toast.success("request successfully submitted");
 
               setBoData({
                 name: user.name,
@@ -228,7 +228,7 @@ const dashboard = ({ user, borrowers, lenderFilter }) => {
           duration: rowData.duration,
           intrest: rowData.intrest,
         };
-        const res = await fetch(`${process.env.BASE_URL}api/fin/get_lenders`, {
+        const res = await fetch(`${process.env.BASE_URL}api/fin/transferLoan`, {
           method: "POST",
           body: JSON.stringify(payload),
         });
