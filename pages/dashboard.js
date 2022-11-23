@@ -51,7 +51,7 @@ const dashboard = ({ user, borrowers, lenderFilter }) => {
             }
             fdata.append("data", JSON.stringify(boData));
             const res = await fetch(
-              `${process.env.BASE_URL}api/fin/borrowers`,
+              `${process.env.BASE_URL}api/fin/get_borrowers`,
               {
                 method: "POST",
                 body: fdata,
@@ -228,7 +228,7 @@ const dashboard = ({ user, borrowers, lenderFilter }) => {
           duration: rowData.duration,
           intrest: rowData.intrest,
         };
-        const res = await fetch(`${process.env.BASE_URL}api/fin/transferLoan`, {
+        const res = await fetch(`${process.env.BASE_URL}api/fin/get_lenders`, {
           method: "POST",
           body: JSON.stringify(payload),
         });
@@ -353,11 +353,13 @@ export async function getServerSideProps({ req }) {
     );
     const user = await UserRes.json();
 
-    const BorrowRes = await fetch(`${process.env.BASE_URL}api/fin/borrowers`);
+    const BorrowRes = await fetch(
+      `${process.env.BASE_URL}api/fin/get_borrowers`
+    );
     const borrowers = await BorrowRes.json();
 
     const LendersRes = await fetch(
-      `${process.env.BASE_URL}api/fin/transferLoan`
+      `${process.env.BASE_URL}api/fin/get_lenders`
     );
     const lenders = await LendersRes.json();
     const lenderFilter = lenders.data.filter(
