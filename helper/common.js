@@ -34,14 +34,16 @@ export const crrUserID = () => {
   return getCookies("uid").uid;
 };
 
-export const UTStoDate = (uts) => {
-  var date = new Date(uts);
-  var day = date.getDate();
-  var month = date.getMonth();
-  var year = date.getFullYear();
+export const UTStoDate = (utc) => {
+  let date = new Date(utc);
+  let day = date.getDate();
+  let month = date.getMonth();
+  let year = date.getFullYear();
+  let hours = date.getHours();
 
-  var hours = date.getHours();
-  var minutes =
+  let seconds = date.getUTCSeconds();
+
+  let minutes =
     date.getMinutes() < 10 ? "0" + date.getMinutes() : date.getMinutes();
 
   let time = `${day}/${month + 1}/${year} ${hours}:${minutes}`;
