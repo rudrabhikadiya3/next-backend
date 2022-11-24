@@ -1,4 +1,5 @@
 import Borrowers from "../../../models/Borrowers";
+import Collateral from "../../../models/Collateral";
 import Users from "../../../models/Users";
 import dbConnect from "../../../helper/DBconnect";
 const path = require("path");
@@ -53,19 +54,33 @@ apiRoute.use(upload.array("files", 2));
 apiRoute.post(async (req, res) => {
   dbConnect();
   const data = await JSON.parse(req.body.data);
+  console.log("borrow_request", data);
+  const { user_id, borrowAmount, duration, intrest, borrower_id } = data;
+
   try {
     const borrowReq = await Borrowers.create({
-      borrowAmount: data.borrowAmount,
-      duration: data.duration,
-      intrest: data.intrest,
+      borrowAmount: borrowAmount,
+      duration: duration,
+      intrest: intrest,
       files: fileName,
       status: 0,
-      borrower_id: data.borrower_id,
+      borrower_id: borrower_id,
       createdAt: Date.now(),
     });
+
+    const collateral = await Collateral.create({
+      owner_id: borrower_id,
+      child_owner_id: null,
+      borrow_id: borrowReq._id,
+      files: fileName,
+      status: 0,
+      createdAt: Date.now(),
+    });
+
+    console.log("new collateral", collateral);
     res.status(200).json({ success: true, data: borrowReq }); // response
   } catch (error) {
-    res.status(400).json();
+    res.status(400).json({ success: true, message: error.message });
   }
   fileName = [];
 });

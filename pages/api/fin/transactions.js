@@ -22,11 +22,6 @@ export default async function handler(req, res) {
         (x) => x._id == each_transaction[i].from_id
       );
       console.log("usersNames", usersNames);
-      //   user_id: { type: String },
-      //   from_id: { type: String },
-      //   type: { type: Number },
-      //   amount: { type: Number },
-      //   transactedAt: { type: Number },
       transactionsData.push({
         _id: each_transaction[i]._id,
         user_id: each_transaction[i].user_id,

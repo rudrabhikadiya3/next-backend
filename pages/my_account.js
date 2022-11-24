@@ -95,7 +95,7 @@ const my_account = ({ user2FAStatus, crrUserDetails, myTransaction }) => {
               {myTransaction.map((t, i) => {
                 if (t.type === 0) {
                   return (
-                    <li className="list-group-item red-bg">
+                    <li className="list-group-item red-bg" key={i}>
                       <div>
                         <p className="name">{t.from_name}</p>
                         <p className="amount text-danger">-${t.amount}</p>
@@ -105,7 +105,7 @@ const my_account = ({ user2FAStatus, crrUserDetails, myTransaction }) => {
                   );
                 } else {
                   return (
-                    <li className="list-group-item green-bg">
+                    <li className="list-group-item green-bg" key={i}>
                       <div>
                         <p className="name">{t.from_name}</p>
                         <p className="amount text-success">+${t.amount}</p>
