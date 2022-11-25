@@ -22,7 +22,6 @@ export default async function handler(req, res) {
       let indexOfCownerName = child_ownerNames.findIndex(
         (x) => x._id == each_collateral[i].child_owner_id
       );
-      console.log("indexOfOwnerName", indexOfCownerName);
 
       collateralData.push({
         _id: each_collateral[i]._id,

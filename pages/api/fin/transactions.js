@@ -21,7 +21,6 @@ export default async function handler(req, res) {
       let indexOfFrom = fromNames.findIndex(
         (x) => x._id == each_transaction[i].from_id
       );
-      console.log("usersNames", usersNames);
       transactionsData.push({
         _id: each_transaction[i]._id,
         user_id: each_transaction[i].user_id,
