@@ -144,10 +144,13 @@ const dashboard = ({ user, borrowers, lenderFilter }) => {
                       <span className="badge text-bg-primary">Pending</span>
                     )}
                     {b.status === 1 && (
-                      <span className="badge text-bg-success">Approved</span>
+                      <span className="badge text-bg-secondary">Approved</span>
                     )}
                     {b.status === 2 && (
-                      <span className="badge text-bg-secondary">Completed</span>
+                      <span className="badge text-bg-success">Completed</span>
+                    )}
+                    {b.status === 3 && (
+                      <span className="badge text-bg-warning">Default</span>
                     )}
                   </td>
                   <td>
@@ -195,7 +198,13 @@ const dashboard = ({ user, borrowers, lenderFilter }) => {
                   <td>${l.loan_amount}</td>
                   <td>{l.duration}hr</td>
                   <td>{l.intrest}</td>
-                  <td>{l.status == 1 ? "Running" : "Not Found"}</td>
+                  <td>
+                    {l.status == 1
+                      ? "Running"
+                      : l.status == 2
+                      ? "Completed"
+                      : "Default"}
+                  </td>
                   <td>{UTStoDate(l.ApprovedAt)}</td>
                 </tr>
               );
@@ -216,6 +225,7 @@ const dashboard = ({ user, borrowers, lenderFilter }) => {
   const handleApprove = async () => {
     const { borrowAmount } = rowData;
     const { balance } = user;
+    console.log(rowData);
 
     if (rowData.borrower_id !== user._id) {
       if (borrowAmount <= balance) {

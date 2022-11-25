@@ -37,9 +37,9 @@ export default async function handler(req, res) {
           { status: 1 }
         );
 
-        let borrowers = await Borrowers.findOne({ _id: borrowReq_id });
-        if (borrowers.status === 1 && changeStatus.acknowledged) {
-          // wallet to wallet transaction
+        let borrower = await Borrowers.findOne({ _id: borrowReq_id });
+        if (borrower.status === 1 && changeStatus.acknowledged) {
+          // transfer loan to borrower from lender
           const debitToLender = await Users.updateOne(
             { _id: lender_id },
             { $inc: { balance: -loan_amount } }
@@ -70,6 +70,143 @@ export default async function handler(req, res) {
             { borrow_id: borrowReq_id },
             { child_owner_id: lender_id, status: 1 }
           );
+          // start deducting intrest
+          if (collateral_status.acknowledged) {
+            console.log("lender", lender);
+
+            const {
+              loan_amount,
+              intrest,
+              borrower_id,
+              _id,
+              duration,
+              ApprovedAt,
+            } = lender;
+
+            let attemp = 0;
+            let auto = setInterval(async () => {
+              const borrower = await Users.findOne(
+                { _id: borrower_id },
+                "balance"
+              );
+              const lenderStatus = await Lenders.findOne(
+                { _id: _id },
+                "status"
+              );
+              let total_intrest = (loan_amount * intrest) / 100;
+              if (borrower.balance > 0) {
+                // const loanExTime = ApprovedAt + duration * 36e5;
+                const loanExTime = ApprovedAt + duration * 60000; // 1min
+                if (Date.now() >= loanExTime) {
+                  if (
+                    borrower.balance >=
+                    Number(loan_amount) + Number(total_intrest)
+                  ) {
+                    // loan principle amount repayment
+                    const debitFromBorrower = await Users.updateOne(
+                      { _id: borrower_id },
+                      { $inc: { balance: -loan_amount - total_intrest } }
+                    );
+
+                    const creditToLender = await Users.updateOne(
+                      { _id: lender_id },
+                      {
+                        $inc: {
+                          balance: Number(loan_amount) + Number(total_intrest),
+                        },
+                      }
+                    );
+                    const changeBorrowStatus = await Borrowers.updateOne(
+                      { _id: borrowReq_id },
+                      { status: 2 }
+                    );
+                    const changeLenderStatus = await Lenders.updateOne(
+                      { _id: _id },
+                      { status: 2 }
+                    );
+
+                    const changeCollateralOwner = await Collateral.updateOne(
+                      { borrow_id: borrowReq_id },
+                      { status: 2 }
+                    );
+                    clearInterval(auto);
+                  } else {
+                    // borrower cant pay principal
+                    attemp++;
+                    if (attemp >= 4) {
+                      const debitFromBorrower = await Users.updateOne(
+                        { _id: borrower_id },
+                        { $inc: { balance: -borrower.balance } }
+                      );
+
+                      const creditToLender = await Users.updateOne(
+                        { _id: lender_id },
+                        {
+                          $inc: {
+                            balance: borrower.balance,
+                          },
+                        }
+                      );
+
+                      const changeBorrowStatus = await Borrowers.updateOne(
+                        { _id: borrowReq_id },
+                        { status: 3 }
+                      );
+                      const changeLenderStatus = await Lenders.updateOne(
+                        { _id: _id },
+                        { status: 3 }
+                      );
+
+                      const changeCollateralOwner = await Collateral.updateOne(
+                        { borrow_id: borrowReq_id },
+                        {
+                          owner_id: lender_id,
+                          child_owner_id: borrower_id,
+                          status: 3,
+                        }
+                      );
+                      clearInterval(auto);
+                    }
+                  }
+                } else {
+                  if (lenderStatus.status === 1) {
+                    console.log("intrest", -total_intrest);
+                    const debitFromBorrower = await Users.updateOne(
+                      { _id: borrower_id },
+                      { $inc: { balance: -total_intrest } }
+                    );
+                    const creditToLender = await Users.updateOne(
+                      { _id: lender_id },
+                      { $inc: { balance: total_intrest } }
+                    );
+                  }
+                }
+              } else {
+                attemp++;
+                if (attemp >= 4) {
+                  // // borrower cant pay intrest
+                  const changeBorrowStatus = await Borrowers.updateOne(
+                    { _id: borrowReq_id },
+                    { status: 3 }
+                  );
+                  const changeLenderStatus = await Lenders.updateOne(
+                    { _id: _id },
+                    { status: 3 }
+                  );
+
+                  const changeCollateralOwner = await Collateral.updateOne(
+                    { borrow_id: borrowReq_id },
+                    {
+                      owner_id: lender_id,
+                      child_owner_id: borrower_id,
+                      status: 3,
+                    }
+                  );
+                  clearInterval(auto);
+                }
+              }
+            }, 5000);
+          }
 
           res.status(200).json({
             success: true,
