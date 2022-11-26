@@ -21,16 +21,13 @@ const dashboard = ({ user, borrowers, lenderFilter }) => {
   const [alert, setAlert] = useState(false);
   const [rowData, setRowData] = useState("");
   const [boData, setBoData] = useState({
-    user_id: user._id,
     borrowAmount: "",
     duration: 1,
     intrest: 5,
-    borrower_id: user._id,
   }); // form's data
   const [files, setFiles] = useState(null);
   const [tab, setTab] = useState("1");
-
-  // console.log(user._id);
+  const [alloted, setAlloted] = useState(0);
 
   const handleTabChange = (event, newTab) => {
     setTab(newTab);
@@ -49,7 +46,10 @@ const dashboard = ({ user, borrowers, lenderFilter }) => {
             for (let i = 0; i < files.length; i++) {
               fdata.append("files", files[i]);
             }
-            fdata.append("data", JSON.stringify(boData));
+            fdata.append(
+              "data",
+              JSON.stringify({ borrower_id: user._id, ...boData })
+            );
             const res = await fetch(
               `${process.env.BASE_URL}api/fin/borrowers`,
               {
@@ -63,11 +63,9 @@ const dashboard = ({ user, borrowers, lenderFilter }) => {
             const borrowersAPI = await res.json();
             if (borrowersAPI.success) {
               console.log("borrowersAPI", borrowersAPI.data);
-              borrowers.data.push({ name: user.name, ...borrowersAPI.data });
               toast.success("request successfully submitted");
 
               setBoData({
-                name: user.name,
                 borrowAmount: "",
                 duration: 1,
                 intrest: 5,
@@ -94,13 +92,6 @@ const dashboard = ({ user, borrowers, lenderFilter }) => {
   const BorrowersTable = () => {
     return (
       <>
-        <Button
-          variant="contained"
-          className="col-2 ms-auto d-block"
-          onClick={() => setFormDialogue(true)}
-        >
-          req for borrow
-        </Button>
         <table className="table table-hover border my-4">
           <thead>
             <tr>
@@ -121,7 +112,10 @@ const dashboard = ({ user, borrowers, lenderFilter }) => {
                 <tr key={i}>
                   <th scope="row">{i + 1}</th>
                   <td>{b.name}</td>
-                  <td>${b.borrowAmount}</td>
+                  <td>
+                    ${b.leftAmount} /
+                    <span className="small">${b.borrowAmount}</span>
+                  </td>
                   <td>{b.intrest}%</td>
                   <td>{b.duration}hr</td>
                   <td>
@@ -141,7 +135,12 @@ const dashboard = ({ user, borrowers, lenderFilter }) => {
                   <td>{UTStoDate(b.createdAt)}</td>
                   <td>
                     {b.status === 0 && (
-                      <span className="badge text-bg-primary">Pending</span>
+                      <span className="badge text-bg-primary">New</span>
+                    )}
+                    {b.status === 0.5 && (
+                      <span className="badge text-bg-primary">
+                        Partially paid
+                      </span>
                     )}
                     {b.status === 1 && (
                       <span className="badge text-bg-secondary">Approved</span>
@@ -154,7 +153,7 @@ const dashboard = ({ user, borrowers, lenderFilter }) => {
                     )}
                   </td>
                   <td>
-                    {b.status === 0 ? (
+                    {b.status === 0 || b.status === 0.5 ? (
                       <button
                         className="btn btn-primary"
                         onClick={() => showDialogue(b)}
@@ -197,13 +196,12 @@ const dashboard = ({ user, borrowers, lenderFilter }) => {
                   <td>{l.name}</td>
                   <td>${l.loan_amount}</td>
                   <td>{l.duration}hr</td>
-                  <td>{l.intrest}</td>
+                  <td>{l.intrest}%</td>
                   <td>
-                    {l.status == 1
-                      ? "Running"
-                      : l.status == 2
-                      ? "Completed"
-                      : "Default"}
+                    {l.status === 1 && "Running"}
+                    {l.status === 1.5 && "Paid"}
+                    {l.status === 2 && "Paid"}
+                    {l.status === 3 && "Default"}
                   </td>
                   <td>{UTStoDate(l.ApprovedAt)}</td>
                 </tr>
@@ -223,35 +221,46 @@ const dashboard = ({ user, borrowers, lenderFilter }) => {
   };
 
   const handleApprove = async () => {
-    const { borrowAmount } = rowData;
+    const { borrowAmount, borrower_id, _id, duration, intrest } = rowData;
     const { balance } = user;
     console.log(rowData);
 
     if (rowData.borrower_id !== user._id) {
-      if (borrowAmount <= balance) {
-        // transfer amount
-        const payload = {
-          loan_amount: borrowAmount,
-          borrower_id: rowData.borrower_id,
-          lender_id: user._id,
-          borrowReq_id: rowData._id,
-          duration: rowData.duration,
-          intrest: rowData.intrest,
-        };
-        const res = await fetch(`${process.env.BASE_URL}api/fin/transferLoan`, {
-          method: "POST",
-          body: JSON.stringify(payload),
-        });
-        const transferLoanAPI = await res.json();
-        setAlert(false);
-        console.log("transferLoanAPI", transferLoanAPI);
-        if (transferLoanAPI.success) {
-          toast.success(transferLoanAPI.message);
+      if (alloted >= 100) {
+        if (alloted <= rowData.leftAmount) {
+          if (alloted <= balance) {
+            const payload = {
+              loan_amount: borrowAmount,
+              alloted: alloted,
+              borrower_id: borrower_id,
+              lender_id: user._id,
+              borrowReq_id: _id,
+              duration: duration,
+              intrest: intrest,
+            };
+            const res = await fetch(
+              `${process.env.BASE_URL}api/fin/transferLoan`,
+              {
+                method: "POST",
+                body: JSON.stringify(payload),
+              }
+            );
+            const transferLoanAPI = await res.json();
+            setAlert(false);
+            console.log("transferLoanAPI", transferLoanAPI);
+            if (transferLoanAPI.success) {
+              toast.success(transferLoanAPI.message);
+            } else {
+              toast.error(transferLoanAPI.message);
+            }
+          } else {
+            toast.error("Not enought account balance");
+          }
         } else {
-          toast.error(transferLoanAPI.message);
+          toast.error("You can't pay more than asking amount");
         }
       } else {
-        toast.error("Not enought account balance");
+        toast.error("Please give him more than $100");
       }
     } else {
       toast.error("You can't approve own loan");
@@ -260,97 +269,124 @@ const dashboard = ({ user, borrowers, lenderFilter }) => {
 
   return (
     <div className="container">
-      <ToastContainer />
       <div className="row p-5">
         <h3 className="text-center">Hello, {user.name} 👋</h3>
-        <Box sx={{ width: "90%", typography: "body1" }}>
-          <TabContext value={tab}>
-            <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
-              <TabList
-                onChange={handleTabChange}
-                aria-label="lab API tabs example"
-              >
-                <Tab label="Borrowers" value="1" />
-                <Tab label="Given loans" value="2" />
-              </TabList>
+        {user.admin ? (
+          <>
+            <Box sx={{ width: "90%", typography: "body1" }}>
+              <TabContext value={tab}>
+                <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
+                  <TabList
+                    onChange={handleTabChange}
+                    aria-label="lab API tabs example"
+                  >
+                    <Tab label="Borrowers" value="1" />
+                    <Tab label="Given loans" value="2" />
+                  </TabList>
+                </Box>
+                <TabPanel value="1">{BorrowersTable()}</TabPanel>
+                <TabPanel value="2">{LendersTable()}</TabPanel>
+              </TabContext>
             </Box>
-            <TabPanel value="1">{BorrowersTable()}</TabPanel>
-            <TabPanel value="2">{LendersTable()}</TabPanel>
-          </TabContext>
-        </Box>
-        <Dialog open={formDialogue} onClose={() => setFormDialogue(false)}>
-          <DialogTitle>Request for borrow</DialogTitle>
-          <DialogContent>
-            <TextField
-              autoFocus
-              type="number"
-              margin="dense"
-              label="Borrow Amount($)"
-              fullWidth
-              variant="standard"
-              onChange={(e) =>
-                setBoData({ ...boData, borrowAmount: e.target.value })
-              }
-            />
-            <p className="m-0 mt-4">Intrest rate(%)</p>
-            <Slider
-              aria-label="intrest"
-              defaultValue={5}
-              valueLabelDisplay="auto"
-              step={0.5}
-              marks
-              min={5}
-              max={30}
-              onChange={(e) =>
-                setBoData({ ...boData, intrest: e.target.value })
-              }
-            />
-            <p className="m-0 mt-2">Duration (in hours)</p>
-            <Slider
-              aria-label="hours"
-              defaultValue={1}
-              valueLabelDisplay="auto"
-              step={1}
-              marks
-              min={1}
-              max={24}
-              onChange={(e) =>
-                setBoData({ ...boData, duration: e.target.value })
-              }
-            />
-            <input
-              className="mt-4 border"
-              autoFocus
-              type="file"
-              margin="dense"
-              variant="standard"
-              onChange={(e) => flieHandler(e.target.files)}
-              multiple
-            />
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={() => setFormDialogue(false)}>Cancel</Button>
-            <Button onClick={handleSubmit}>Submit</Button>
-          </DialogActions>
-        </Dialog>
-        <Dialog open={alert} onClose={() => setAlert(false)}>
-          <DialogTitle id="alert-dialog-title">
-            Are you sure to approve loan?
-          </DialogTitle>
-          <DialogContent>
-            <DialogContentText>
-              On approve the loan, loan ammount will automatically deduct from
-              your wallet
-            </DialogContentText>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={() => setAlert(false)}>No</Button>
-            <Button onClick={handleApprove} autoFocus>
-              Yes
+            <Dialog
+              open={alert}
+              onClose={() => {
+                setAlert(false);
+                setAlloted(0);
+              }}
+            >
+              <DialogTitle>Are you sure to approve loan?</DialogTitle>
+              <DialogContent>
+                <DialogContentText>
+                  How much you wanna pay to borrower? (max: $
+                  {rowData.leftAmount})
+                </DialogContentText>
+                <TextField
+                  autoFocus
+                  type="number"
+                  margin="dense"
+                  label="Borrow Amount($)"
+                  fullWidth
+                  variant="standard"
+                  onChange={(e) => setAlloted(e.target.value)}
+                />
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={() => setAlert(false)}>No</Button>
+                <Button onClick={handleApprove} autoFocus>
+                  Yes
+                </Button>
+              </DialogActions>
+            </Dialog>
+          </>
+        ) : (
+          <>
+            <Button
+              variant="contained"
+              className="col-2 mx-auto d-block"
+              onClick={() => setFormDialogue(true)}
+            >
+              req for borrow
             </Button>
-          </DialogActions>
-        </Dialog>
+            <Dialog open={formDialogue} onClose={() => setFormDialogue(false)}>
+              <DialogTitle>Request for borrow</DialogTitle>
+              <DialogContent>
+                <TextField
+                  autoFocus
+                  type="number"
+                  margin="dense"
+                  label="Borrow Amount($)"
+                  fullWidth
+                  variant="standard"
+                  onChange={(e) =>
+                    setBoData({ ...boData, borrowAmount: e.target.value })
+                  }
+                />
+                <p className="m-0 mt-4">Intrest rate(%)</p>
+                <Slider
+                  aria-label="intrest"
+                  defaultValue={5}
+                  valueLabelDisplay="auto"
+                  step={0.5}
+                  marks
+                  min={5}
+                  max={30}
+                  onChange={(e) =>
+                    setBoData({ ...boData, intrest: e.target.value })
+                  }
+                />
+                <p className="m-0 mt-2">Duration (in hours)</p>
+                <Slider
+                  aria-label="hours"
+                  defaultValue={1}
+                  valueLabelDisplay="auto"
+                  step={1}
+                  marks
+                  min={1}
+                  max={24}
+                  onChange={(e) =>
+                    setBoData({ ...boData, duration: e.target.value })
+                  }
+                />
+                <input
+                  className="mt-4 border"
+                  autoFocus
+                  type="file"
+                  margin="dense"
+                  variant="standard"
+                  onChange={(e) => flieHandler(e.target.files)}
+                  multiple
+                />
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={() => setFormDialogue(false)}>Cancel</Button>
+                <Button onClick={handleSubmit}>Submit</Button>
+              </DialogActions>
+            </Dialog>
+          </>
+        )}
       </div>
+      <ToastContainer />
     </div>
   );
 };

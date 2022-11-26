@@ -1,15 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 
 const demo = () => {
-  let attemp = 0;
-  let auto = setInterval(() => {
-    console.log(attemp++);
-    if (attemp >= 4) {
-      clearInterval(auto);
-      console.log("OVER");
-    }
-  }, 1000);
-  return <h1>demo</h1>;
+  let letter = (o, t, th, fo, fi, si) => {
+    return `${o}-${t}-${th}-${fo}-${fi}-${si}`;
+  };
+
+  return <h1>{letter(1, 2, 3, 4, 5, 6)}</h1>;
 };
 
 export default demo;

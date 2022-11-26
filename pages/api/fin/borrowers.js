@@ -61,6 +61,7 @@ apiRoute.post(async (req, res) => {
     const borrowReq = await Borrowers.create({
       borrowAmount: borrowAmount,
       duration: duration,
+      leftAmount: borrowAmount,
       intrest: intrest,
       files: fileName,
       status: 0,

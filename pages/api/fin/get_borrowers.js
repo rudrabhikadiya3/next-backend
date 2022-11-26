@@ -19,6 +19,7 @@ export default async function handler(req, res) {
         _id: each_borrower[i]._id,
         borrower_id: each_borrower[i].borrower_id,
         name: usersName[index].name,
+        leftAmount: each_borrower[i].leftAmount,
         borrowAmount: each_borrower[i].borrowAmount,
         intrest: each_borrower[i].intrest,
         duration: each_borrower[i].duration,

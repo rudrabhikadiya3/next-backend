@@ -41,11 +41,14 @@ export const UTStoDate = (utc) => {
   let year = date.getFullYear();
   let hours = date.getHours();
 
-  let seconds = date.getUTCSeconds();
+  let seconds =
+    date.getUTCSeconds() < 10
+      ? "0" + date.getUTCSeconds()
+      : date.getUTCSeconds();
 
   let minutes =
     date.getMinutes() < 10 ? "0" + date.getMinutes() : date.getMinutes();
 
-  let time = `${day}/${month + 1}/${year} ${hours}:${minutes}`;
+  let time = `${day}/${month + 1}/${year} ${hours}:${minutes}:${seconds}`;
   return time;
 };

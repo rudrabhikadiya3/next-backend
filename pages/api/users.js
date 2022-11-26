@@ -22,6 +22,7 @@ export default async function handler(req, res) {
           isEmailVerfied: false,
           is2FAEnabel: false,
           balance: 0,
+          admin: false,
         });
         res.status(201).json({
           success: true,
@@ -37,7 +38,7 @@ export default async function handler(req, res) {
     } catch (error) {
       res.status(400).json({
         success: false,
-        message: `Something went wrong`,
+        message: error.message,
       });
     }
   } else {
@@ -47,7 +48,7 @@ export default async function handler(req, res) {
     } catch (error) {
       res.status(400).json({
         success: false,
-        message: `Something went wrong`,
+        message: error.message,
       });
     }
   }

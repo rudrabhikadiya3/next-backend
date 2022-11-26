@@ -7,7 +7,8 @@ module.exports =
       {
         borrower_id: { type: String },
         lender_id: { type: String },
-        loan_amount: { type: String },
+        alloted: { type: Number },
+        loan_amount: { type: Number },
         duration: { type: Number },
         intrest: { type: Number },
         status: { type: Number },

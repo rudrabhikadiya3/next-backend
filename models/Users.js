@@ -7,13 +7,14 @@ module.exports =
       {
         name: { type: String },
         email: { type: String },
-        password: { type: String },
+        balance: { type: Number },
+        admin: { type: Boolean },
+        isEmailVerfied: { type: Boolean },
         otp: { type: Number },
         otpGenerateTime: { type: Number },
-        isEmailVerfied: { type: Boolean },
         is2FAEnabel: { type: Boolean },
         base32: { type: String },
-        balance: { type: Number },
+        password: { type: String },
       },
       { versionKey: false }
     )

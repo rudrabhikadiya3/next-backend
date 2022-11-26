@@ -17,14 +17,32 @@ export default async function handler(req, res) {
         borrowReq_id,
         duration,
         intrest,
+        alloted,
       } = body;
-
+      const approveStatus = loan_amount - alloted === 0 ? 1 : 0.5;
       let borrowers = await Borrowers.findOne({ _id: borrowReq_id });
-      if (borrowers.status === 0) {
+      const recordTransaction = async (creditFrom, debitIn, amount) => {
+        const debitFromLender = await Transactions.create({
+          user_id: creditFrom,
+          from_id: debitIn,
+          type: 0,
+          amount: amount,
+          transactedAt: Date.now(),
+        });
+        const creditInBorrower = await Transactions.create({
+          user_id: debitIn,
+          from_id: creditFrom,
+          type: 1,
+          amount: amount,
+          transactedAt: Date.now(),
+        });
+      };
+      if (borrowers.status === 0 || borrowers.status === 0.5) {
         // create lender
         const lender = await Lenders.create({
           borrower_id: borrower_id,
           lender_id: lender_id,
+          alloted,
           loan_amount: loan_amount,
           duration: duration,
           intrest: intrest,
@@ -34,36 +52,30 @@ export default async function handler(req, res) {
 
         const changeStatus = await Borrowers.updateOne(
           { _id: borrowReq_id },
-          { status: 1 }
+          {
+            status: approveStatus,
+          }
         );
 
+        const minusLeftAmount = await Borrowers.updateOne(
+          { _id: borrowReq_id },
+          { $inc: { leftAmount: -alloted } }
+        );
+        console.log("minusLeftAmount", minusLeftAmount);
         let borrower = await Borrowers.findOne({ _id: borrowReq_id });
-        if (borrower.status === 1 && changeStatus.acknowledged) {
+        if (changeStatus.acknowledged) {
           // transfer loan to borrower from lender
           const debitToLender = await Users.updateOne(
             { _id: lender_id },
-            { $inc: { balance: -loan_amount } }
+            { $inc: { balance: -alloted } }
           );
 
           const creditToBorrower = await Users.updateOne(
             { _id: borrower_id },
-            { $inc: { balance: loan_amount } }
+            { $inc: { balance: alloted } }
           );
           // record money transaction
-          const debitFromLender = await Transactions.create({
-            user_id: lender_id,
-            from_id: borrower_id,
-            type: 0,
-            amount: loan_amount,
-            transactedAt: Date.now(),
-          });
-          const creditInBorrower = await Transactions.create({
-            user_id: borrower_id,
-            from_id: lender_id,
-            type: 1,
-            amount: loan_amount,
-            transactedAt: Date.now(),
-          });
+          recordTransaction(lender_id, borrower_id, alloted);
 
           // lender involve in colleteral
           const collateral_status = await Collateral.updateOne(
@@ -81,6 +93,7 @@ export default async function handler(req, res) {
               _id,
               duration,
               ApprovedAt,
+              alloted,
             } = lender;
 
             let attemp = 0;
@@ -93,42 +106,55 @@ export default async function handler(req, res) {
                 { _id: _id },
                 "status"
               );
-              let total_intrest = (loan_amount * intrest) / 100;
+              let total_intrest = (alloted * intrest) / 100;
               if (borrower.balance > 0) {
                 // const loanExTime = ApprovedAt + duration * 36e5;
                 const loanExTime = ApprovedAt + duration * 60000; // 1min
                 if (Date.now() >= loanExTime) {
-                  if (
-                    borrower.balance >=
-                    Number(loan_amount) + Number(total_intrest)
-                  ) {
+                  if (borrower.balance >= alloted + total_intrest) {
                     // loan principle amount repayment
                     const debitFromBorrower = await Users.updateOne(
                       { _id: borrower_id },
-                      { $inc: { balance: -loan_amount - total_intrest } }
+                      { $inc: { balance: -alloted - total_intrest } }
                     );
 
                     const creditToLender = await Users.updateOne(
                       { _id: lender_id },
                       {
                         $inc: {
-                          balance: Number(loan_amount) + Number(total_intrest),
+                          balance: alloted + total_intrest,
                         },
                       }
                     );
-                    const changeBorrowStatus = await Borrowers.updateOne(
-                      { _id: borrowReq_id },
-                      { status: 2 }
+                    recordTransaction(
+                      borrower_id,
+                      lender_id,
+                      alloted + total_intrest
                     );
-                    const changeLenderStatus = await Lenders.updateOne(
-                      { _id: _id },
-                      { status: 2 }
-                    );
+                    if (approveStatus === 1) {
+                      const changeBorrowStatus = await Borrowers.updateOne(
+                        { _id: borrowReq_id },
+                        { status: 2 }
+                      );
+                      const changeLenderStatus = await Lenders.updateOne(
+                        { _id: _id },
+                        { status: 2 }
+                      );
+                      const changeCollateralOwner = await Collateral.updateOne(
+                        { borrow_id: borrowReq_id },
+                        { status: 2 }
+                      );
+                    } else {
+                      const changeLenderStatus = await Lenders.updateOne(
+                        { _id: _id },
+                        { status: 1.5 }
+                      );
 
-                    const changeCollateralOwner = await Collateral.updateOne(
-                      { borrow_id: borrowReq_id },
-                      { status: 2 }
-                    );
+                      const changeCollateralOwner = await Collateral.updateOne(
+                        { borrow_id: borrowReq_id },
+                        { status: 1.5 }
+                      );
+                    }
                     clearInterval(auto);
                   } else {
                     // borrower cant pay principal
@@ -147,7 +173,11 @@ export default async function handler(req, res) {
                           },
                         }
                       );
-
+                      recordTransaction(
+                        borrower_id,
+                        lender_id,
+                        borrower.balance
+                      );
                       const changeBorrowStatus = await Borrowers.updateOne(
                         { _id: borrowReq_id },
                         { status: 3 }
@@ -170,7 +200,6 @@ export default async function handler(req, res) {
                   }
                 } else {
                   if (lenderStatus.status === 1) {
-                    console.log("intrest", -total_intrest);
                     const debitFromBorrower = await Users.updateOne(
                       { _id: borrower_id },
                       { $inc: { balance: -total_intrest } }
@@ -179,6 +208,7 @@ export default async function handler(req, res) {
                       { _id: lender_id },
                       { $inc: { balance: total_intrest } }
                     );
+                    recordTransaction(borrower_id, lender_id, total_intrest);
                   }
                 }
               } else {

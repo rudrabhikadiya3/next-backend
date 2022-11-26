@@ -6,7 +6,8 @@ module.exports =
     new Schema(
       {
         borrower_id: { type: String },
-        borrowAmount: { type: String },
+        borrowAmount: { type: Number },
+        leftAmount: { type: Number },
         intrest: { type: Number },
         duration: { type: Number },
         files: { type: Array },
