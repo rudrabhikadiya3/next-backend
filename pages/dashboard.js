@@ -11,12 +11,13 @@ import {
 import { TabContext, TabList, TabPanel } from "@mui/lab";
 import { Box, Tab } from "@mui/material";
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { UTStoDate } from "../helper/common";
+import { getCookie } from "cookies-next";
 
-const dashboard = ({ user, borrowers, lenderFilter }) => {
+const dashboard = ({ user }) => {
   const [formDialogue, setFormDialogue] = useState(false);
   const [alert, setAlert] = useState(false);
   const [rowData, setRowData] = useState("");
@@ -28,6 +29,8 @@ const dashboard = ({ user, borrowers, lenderFilter }) => {
   const [files, setFiles] = useState(null);
   const [tab, setTab] = useState("1");
   const [alloted, setAlloted] = useState(0);
+  const [borrowers, setBorrowers] = useState([]);
+  const [lenders, setLenders] = useState([]);
 
   const handleTabChange = (event, newTab) => {
     setTab(newTab);
@@ -36,6 +39,32 @@ const dashboard = ({ user, borrowers, lenderFilter }) => {
   const flieHandler = (file) => {
     setFiles(file);
   };
+
+  const listBorrower = async () => {
+    const BorrowRes = await fetch(
+      `${process.env.BASE_URL}api/fin/get_borrowers`
+    );
+    const borrowers = await BorrowRes.json();
+    if (borrowers.status === true) {
+      setBorrowers(borrowers.data);
+    }
+  };
+
+  const listLenders = async () => {
+    const res = await fetch(`${process.env.BASE_URL}api/fin/get_lenders`);
+    const data = await res.json();
+    if (data.success) {
+      const lenderFilter = data.data.filter(
+        (l) => l.lender_id === getCookie("uid")
+      );
+      setLenders(lenderFilter);
+    }
+  };
+
+  useEffect(() => {
+    listBorrower();
+    listLenders();
+  }, []);
 
   const handleSubmit = async () => {
     if (boData.borrowAmount != "") {
@@ -107,7 +136,7 @@ const dashboard = ({ user, borrowers, lenderFilter }) => {
             </tr>
           </thead>
           <tbody>
-            {borrowers.data.map((b, i) => {
+            {borrowers.map((b, i) => {
               return (
                 <tr key={i}>
                   <th scope="row">{i + 1}</th>
@@ -174,7 +203,7 @@ const dashboard = ({ user, borrowers, lenderFilter }) => {
   };
 
   const LendersTable = () => {
-    if (lenderFilter.length) {
+    if (lenders.length) {
       return (
         <table className="table table-hover">
           <thead>
@@ -189,7 +218,7 @@ const dashboard = ({ user, borrowers, lenderFilter }) => {
             </tr>
           </thead>
           <tbody>
-            {lenderFilter.map((l, i) => {
+            {lenders.map((l, i) => {
               return (
                 <tr key={i}>
                   <th scope="row">{i + 1}</th>
@@ -250,6 +279,8 @@ const dashboard = ({ user, borrowers, lenderFilter }) => {
             console.log("transferLoanAPI", transferLoanAPI);
             if (transferLoanAPI.success) {
               toast.success(transferLoanAPI.message);
+              listBorrower();
+              listLenders();
             } else {
               toast.error(transferLoanAPI.message);
             }
@@ -312,8 +343,10 @@ const dashboard = ({ user, borrowers, lenderFilter }) => {
                 />
               </DialogContent>
               <DialogActions>
-                <Button onClick={() => setAlert(false)}>No</Button>
-                <Button onClick={handleApprove} autoFocus>
+                <Button onClick={() => setAlert(false)} variant="outlined">
+                  No
+                </Button>
+                <Button onClick={handleApprove} autoFocus variant="contained">
                   Yes
                 </Button>
               </DialogActions>
@@ -399,23 +432,9 @@ export async function getServerSideProps({ req }) {
     );
     const user = await UserRes.json();
 
-    const BorrowRes = await fetch(
-      `${process.env.BASE_URL}api/fin/get_borrowers`
-    );
-    const borrowers = await BorrowRes.json();
-
-    const LendersRes = await fetch(
-      `${process.env.BASE_URL}api/fin/get_lenders`
-    );
-    const lenders = await LendersRes.json();
-    const lenderFilter = lenders.data.filter(
-      (d) => d.lender_id === req.cookies.uid
-    );
     return {
       props: {
         user: user.data,
-        borrowers,
-        lenderFilter,
       },
     };
   } else {
