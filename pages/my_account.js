@@ -7,11 +7,13 @@ import "react-toastify/dist/ReactToastify.css";
 import { dec, secretkeys, UTStoDate } from "../helper/common";
 import Balance from "../components/mini_component/Balance";
 
-const my_account = ({ user2FAStatus, crrUserDetails, myTransaction }) => {
+const my_account = ({ user2FAStatus, crrUserDetails }) => {
   const bal = crrUserDetails.user.balance;
   const [CheckBox, setCheckBox] = useState(user2FAStatus); //retun checkbox status (true / false)
 
   const [userOTP, setUserOTP] = useState(""); // 2FA viceversa otp
+
+  const [myTransaction, setMyTransaction] = useState([]);
 
   const switchRef = useRef();
 
@@ -77,17 +79,35 @@ const my_account = ({ user2FAStatus, crrUserDetails, myTransaction }) => {
     }
   };
 
-  const transactions = () => {};
+  const listTransactions = async () => {
+    const transactionRes = await fetch(
+      process.env.BASE_URL + "api/fin/transactions"
+    );
 
+    const allTransaction = await transactionRes.json();
+
+    const onlyMyTransaction = await allTransaction.data.filter(
+      (t) => t.user_id == getCookies("uid").uid
+    );
+    // sort by time (latest up)
+    onlyMyTransaction.sort((a, b) =>
+      a.transactedAt > b.transactedAt
+        ? -1
+        : b.transactedAt > a.transactedAt
+        ? 1
+        : 0
+    );
+    setMyTransaction(onlyMyTransaction);
+  };
   useEffect(() => {
     switchRef.current.checked = user2FAStatus;
+    listTransactions();
   }, []);
-
   return (
     <div className="container">
       <ToastContainer />
       <div className="row justify-content-center">
-        <Balance bal={bal} />
+        <Balance bal={bal} reRender={listTransactions} />
         <div className="transaction-box mt-5">
           <h3>Recent Transaction</h3>
           <div className="card">
@@ -159,28 +179,10 @@ export async function getServerSideProps({ req }) {
     );
     const resAuth = await callAuth.json();
 
-    const transactionRes = await fetch(
-      process.env.BASE_URL + "api/fin/transactions"
-    );
-
-    const allTransaction = await transactionRes.json();
-
-    const myTransaction = await allTransaction.data.filter(
-      (t) => t.user_id == req.cookies.uid
-    );
-    // sort by time (latest up)
-    myTransaction.sort((a, b) =>
-      a.transactedAt > b.transactedAt
-        ? -1
-        : b.transactedAt > a.transactedAt
-        ? 1
-        : 0
-    );
     return {
       props: {
         user2FAStatus: res.data.is2FAEnabel,
         crrUserDetails: resAuth,
-        myTransaction,
       },
     };
   } else {

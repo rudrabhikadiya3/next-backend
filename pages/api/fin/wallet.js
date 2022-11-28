@@ -1,5 +1,6 @@
 import dbConnect from "../../../helper/DBconnect";
 import Users from "../../../models/Users";
+import Transactions from "../../../models/Transactions";
 export default async function handler(req, res) {
   dbConnect();
 
@@ -9,6 +10,13 @@ export default async function handler(req, res) {
       { _id: userID },
       { $inc: { balance: addedAmount } }
     );
+    const creditInUser = await Transactions.create({
+      user_id: userID,
+      from_id: "Wallet Reload",
+      type: 1,
+      amount: addedAmount,
+      transactedAt: Date.now(),
+    });
     const findUser = await Users.findOne({ _id: userID }, "balance");
     res.status(200).json({
       success: true,

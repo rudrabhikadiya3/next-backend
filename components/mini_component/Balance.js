@@ -1,6 +1,5 @@
 import {
   Button,
-  CircularProgress,
   Dialog,
   DialogActions,
   DialogContent,
@@ -11,7 +10,7 @@ import { useState } from "react";
 import { toast } from "react-toastify";
 import { crrUserID } from "../../helper/common";
 
-const Balance = ({ bal }) => {
+const Balance = ({ bal, reRender }) => {
   const [balanceDialogue, setBalanceDialogue] = useState(false);
   const [addedAmount, setaddedAmount] = useState("");
   const [balance, setBalance] = useState(bal);
@@ -30,6 +29,7 @@ const Balance = ({ bal }) => {
         if (wallet.success) {
           setBalance(wallet.balance);
           toast.success(wallet.message);
+          reRender();
         } else {
           toast.error(wallet.message);
         }

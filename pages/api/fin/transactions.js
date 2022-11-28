@@ -24,8 +24,11 @@ export default async function handler(req, res) {
       transactionsData.push({
         _id: each_transaction[i]._id,
         user_id: each_transaction[i].user_id,
-        user_name: usersNames[indexOfName].name,
-        from_name: fromNames[indexOfFrom].name,
+        // user_name: usersNames[indexOfName].name,
+        user_name: indexOfName >= 0 ? usersNames[indexOfName].name : null,
+        // from_name: fromNames[indexOfFrom].name,
+        from_name:
+          indexOfFrom >= 0 ? fromNames[indexOfFrom].name : "Wallet Reload",
         from_id: each_transaction[i].from_id,
         type: each_transaction[i].type,
         amount: each_transaction[i].amount,
